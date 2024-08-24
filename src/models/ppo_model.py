@@ -48,11 +48,10 @@ class PPOModel:
     def predict(self, x):
         ''' Predicts a deterministic action in state x '''
         action, _ = self.model.predict(x, deterministic=True)
-        if len(action) == 1:
-            return action.item()
-
         if isinstance(action, np.ndarray):
             return action.squeeze().tolist()
+        elif len(action) == 1:
+            return action.item()
 
         # in case of multidim actions
         return action
@@ -69,28 +68,16 @@ class PPOModel:
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x).unsqueeze(0)
 
-        q_values = self.model.policy.q_net(x)
-        probs = torch.softmax(q_values, dim=-1).squeeze()
+        if not isinstance(a, list):
+            a = [a]
 
-        return probs[a].item()
+        prob = 0.0
+        distribution = self.model.policy.get_distribution(x.squeeze()[:-1].reshape(1, -1)).distribution
 
-    def predict_proba(self, x):
-        if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x).unsqueeze(0)
+        for i, action_component in enumerate(distribution):
+            prob += action_component.probs[a[i]]
 
-        q_values = self.model.policy.q_net(x)
-        probs = torch.softmax(q_values, dim=-1).squeeze()
-
-        return probs
-
-    def get_Q_vals(self, x):
-        ''' Returns a list of Q values for taking any action in x '''
-        if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x).unsqueeze(0)
-
-        q_values = self.model.policy.q_net(x)
-
-        return q_values.squeeze().tolist()
+        return prob
 
     def evaluate(self):
         ''' Evaluates learned policy in the environment '''

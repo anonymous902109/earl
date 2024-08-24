@@ -68,10 +68,10 @@ class SGENAlg:
             x_decoded = self.reorder_features(x, dataset, enc, len(continuous_features.columns))
 
             # probabilities of predicting different classes
-            probs = self.bb_model.predict_proba(x_decoded)
+            action_check = self.bb_model.predict(x_decoded)
 
             # sanity check -- if semifact outcome (why not Y) is already the most likely
-            if probs[dataset.target_action] == max(probs):
+            if dataset.target_action != action_check:
                 continue
 
             # this while loop exists so that the initial population has at least one semifactual
@@ -92,7 +92,7 @@ class SGENAlg:
 
                 decoded_pop = np.stack(decoded_pop)
 
-                avg_preds = (self.bb_model.predict_multiple(decoded_pop.reshape(-1, *dataset.state_shape)) != dataset.target_action).mean()
+                avg_preds = np.mean([self.bb_model.predict_multiple(decoded_pop.reshape(-1, *dataset.state_shape)) != dataset.target_action])
                 if counter_xxx == 100:
                     break
 
@@ -183,7 +183,7 @@ class SGENAlg:
             decoded_solution = []
             for j, x in enumerate(solution):
                 decoded_item = self.reorder_features(x, dataset, enc, len(continuous_features.columns))
-                decoded_solution.append(decoded_item)
+                decoded_solution.append(decoded_item.tolist())
 
             decoded_solution = np.stack(decoded_solution)
             decoded_solution = decoded_solution.reshape(decoded_solution.shape[0], decoded_solution.shape[-1]) # middle dimension might be 1 removing this
@@ -201,7 +201,7 @@ class SGENAlg:
 
             term1 = (term1 + robustness_1 + robustness_2).mean()
 
-            correctness = (clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape)) != dataset.target_action).mean()  # hard constraint that the solution MUST contain SF
+            correctness = np.mean([clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape)) != dataset.target_action])  # hard constraint that the solution MUST contain SF
             fitness_scores.append((term1 + diversity).item() * correctness)
             meta_fitness.append([reachability.mean(), gain.mean(), robustness_1.mean(), robustness_2.mean(), diversity])
 
@@ -259,8 +259,8 @@ class SGENAlg:
 
 
             predictions = clf.predict_multiple(decoded_perturbed_instance.reshape(-1, *dataset.state_shape)) != dataset.target_action
-            perturbation_preds.append(predictions.tolist())
-        return np.array(perturbation_preds).mean(axis=1)
+            perturbation_preds.append(predictions)
+        return np.array(perturbation_preds).mean()
 
     def perturb_continuous(self, x, x_prime, idx, continuous_features, categorical_features, action_meta):
         """
@@ -439,11 +439,11 @@ class SGENAlg:
 
             # If you can generate new feature anywhere
             if action_meta[cat_name]['can_increase'] and action_meta[cat_name]['can_decrease']:
-                if original_rep.shape[0] == 1:
-                    new = np.array([abs(1-original_rep[0])])
-                else:
-                    new = np.eye(len(original_rep)-1)[np.random.choice(len(original_rep)-1)]
+                try:
+                    new = np.eye(len(original_rep) - 1)[np.random.choice(len(original_rep) - 1)]
                     new = np.insert(new, np.argmax(new_rep), 0)
+                except:
+                    new = new_rep
 
             # if you can only increase
             elif action_meta[cat_name]['can_increase'] and not action_meta[cat_name]['can_decrease']:

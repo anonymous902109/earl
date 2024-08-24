@@ -18,6 +18,7 @@ class AbstractDataset:
         self.bb_model = bb_model
         self.outcome = outcome
         self.params = params
+        self.target_action = outcome.target_action
 
         self.categorical_feature_names = self.params.categorical_features
         self.continuous_feature_names = self.params.continuous_features
@@ -25,6 +26,10 @@ class AbstractDataset:
         self.df = self.generate_dataset(env, bb_model, outcome)
 
         self.facts, self.fact_ids = self.get_facts(self.df, outcome)
+
+        self.cat_order = {cat_feature: self.columns.index(cat_feature) for cat_feature in self.categorical_feature_names}
+
+        self.state_shape = env.state_shape
 
     def get_dataset(self):
         return self.df
@@ -35,7 +40,7 @@ class AbstractDataset:
         """
         dataset = self.collect_dataset(env, bb_model, outcome)
 
-        df = pd.DataFrame(dataset, columns=self.columns)
+        df = pd.DataFrame(dataset, columns=self.columns+['Outcome'])
 
         return df
 
@@ -72,7 +77,7 @@ class AbstractDataset:
 
     def generate_columns(self, params):
         if 'columns' in params:
-            return params.columns + ['Outcome']
+            return params.columns
 
         # TODO: generate template col names
 
@@ -91,7 +96,7 @@ class AbstractDataset:
         meta_action_data = {
             f'{f}': {'actionable': True,
                      'min': 0,
-                     'max': 1,
+                     'max': 100,
                      'can_increase': True,
                      'can_decrease': True}
             for f in self.columns}

@@ -35,7 +35,9 @@ class SLTask(Task):
         pass
 
     def explain(self, algorithm):
-        algorithm.generate_explanation(self.dataset, self.fact_ids, self.outcome)
+        sfs = algorithm.generate_explanation(self.dataset, self.fact_ids, self.outcome)
+
+        return sfs
 
     def parse_arguments(self, params):
         def list_of_strings(arg):

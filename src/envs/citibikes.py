@@ -56,7 +56,8 @@ class CitiBikes(AbstractEnv):
         self.categorical_features = self.state_feature_names
         self.continuous_features = []
 
-        self.cat_order = {cat_feature: index(self.state_feature_names) for cat_feature in self.categorical_features}
+        self.state_shape = (self.state_dim,)
+
 
     def process_action(self, action):
         if len(action) == 1:
