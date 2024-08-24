@@ -1,0 +1,53 @@
+{
+    "horizon": 5,
+    "num_features": 10,
+    "task_name": "farm0",
+
+    "env_same_rews": {
+    },
+
+    "bb_model_optim": {
+        "arch": [256, 256],
+        "lr": 0.0001,
+        "gamma": 0.8,
+        "exploration_fraction": 0.5,
+        "training_timesteps": 1e5
+    },
+
+    "bb_model_suboptim": {
+        "arch": [256, 256],
+        "lr": 0.0001,
+        "gamma": 0.8,
+        "exploration_fraction": 0.5,
+        "training_timesteps": 1e4
+    },
+
+    "ganterfactual": {
+        "num_domains": 7,
+        "num_features": 10,
+        "dataset_n_samples": 500000,
+        "training_timesteps": 3000,
+        "batch_size": 512,
+        "horizon": 5
+    },
+
+    "gen_alg": {
+        "horizon": 5,
+        "xl": -1,
+        "xu": 6,
+        "n_gen": 25,
+        "pop_size": 24,
+        "n_sim": 10,
+        "expl_budget": 5
+    },
+
+    "hts": {
+        "horizon": 5,
+        "ts_n_expand": 20,
+        "max_level": 25,
+        "ts_n_iter": 300,
+        "n_sim": 10,
+        "c": 0.7
+    }
+}
+

@@ -1,0 +1,54 @@
+{
+    "horizon": 5,
+    "num_features": 30,
+
+    "task_name": "highway",
+
+    "env_same_rews": {
+    },
+
+    "bb_model_optim": {
+        "arch": [256, 256],
+        "lr": 5e-4,
+        "gamma": 0.9,
+        "exploration_fraction": 0.8,
+        "training_timesteps": 2e4
+    },
+
+    "bb_model_suboptim": {
+        "arch": [256, 256],
+        "lr": 5e-4,
+        "gamma": 0.9,
+        "exploration_fraction": 0.8,
+        "training_timesteps": 2e3
+    },
+
+    "ganterfactual": {
+        "num_domains": 5,
+        "num_features": 30,
+        "dataset_n_samples": 500000,
+        "training_timesteps": 3000,
+        "batch_size": 512,
+        "horizon": 5
+    },
+
+    "gen_alg": {
+        "horizon": 5,
+        "xl": -1,
+        "xu": 5,
+        "n_gen": 25,
+        "pop_size": 24,
+        "n_sim": 10,
+        "expl_budget": 5
+    },
+
+    "hts": {
+        "horizon": 5,
+        "ts_n_expand": 20,
+        "max_level": 25,
+        "ts_n_iter": 300,
+        "n_sim": 10,
+        "c": 0.7
+    }
+}
+
