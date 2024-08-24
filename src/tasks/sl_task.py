@@ -1,6 +1,6 @@
 import argparse
 
-from src.models.datasets.abstract_dataset import AbstractDataset
+from src.models.abstract_dataset import AbstractDataset
 from src.models.sl_fact import SLFact
 from src.tasks.task import Task
 
@@ -38,8 +38,14 @@ class SLTask(Task):
         algorithm.generate_explanation(self.dataset, self.fact_ids, self.outcome)
 
     def parse_arguments(self, params):
+        def list_of_strings(arg):
+            import ast
+            return ast.literal_eval(arg)
+
         parser = argparse.ArgumentParser()
-        parser.add_argument('--columns', type=list, default=[], help='a list of column names for state features')
+        parser.add_argument('--columns', type=list_of_strings, default=[], help='a list of column names for state features')
+        parser.add_argument('--categorical_features', type=list_of_strings, default=[], help='a list of categorical state features')
+        parser.add_argument('--continuous_features', type=list_of_strings, default=[], help='a list of continuous state features')
 
         args = parser.parse_args(params)
 

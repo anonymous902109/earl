@@ -20,7 +20,7 @@ class OneActionOutcome(AbstractOutcome):
 
     def explain_outcome(self, env, state=None):
 
-        if (not env.is_done) and (self.bb_model.predict(state) != self.target_action):
+        if (not env.is_done) and (self.bb_model.predict(state) == self.target_action):
             return True
 
         return False

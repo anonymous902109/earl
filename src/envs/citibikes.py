@@ -48,7 +48,15 @@ class CitiBikes(AbstractEnv):
 
         self.random_generator = np.random.default_rng(seed=int(datetime.now().timestamp()*10000))
 
-        self.state_feature_names = ['decision_type', 'decision_event_station_idx', 'frame_index'] + ['{}_{}'.format(sf, i) for sf in self.station_features for i in range(self.num_stations)] + self.shared_features
+        self.state_feature_names = ['decision_type', 'decision_event_station_idx', 'frame_index'] + \
+                                   ['{}_{}'.format(sf, i) for sf in self.station_features for i in range(self.num_stations)] +\
+                                   self.shared_features + \
+                                   ['tick']
+
+        self.categorical_features = self.state_feature_names
+        self.continuous_features = []
+
+        self.cat_order = {cat_feature: index(self.state_feature_names) for cat_feature in self.categorical_features}
 
     def process_action(self, action):
         if len(action) == 1:
@@ -99,7 +107,7 @@ class CitiBikes(AbstractEnv):
 
         self.obs = obs
 
-        return np.array(obs).squeeze(), None
+        return obs, None
 
     def generate_obs(self, decision_event):
         obs = []
