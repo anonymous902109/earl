@@ -132,7 +132,7 @@ class SGENAlg:
                     end = time.time()
                     gen_times.append(end - start)
                     sf_data.append(d.tolist())
-                    found_sfs.append([test_ids[test_idx], True])
+                    found_sfs.append([test_ids, True])
 
             else:
                 result, replaced_these_idxs = self.force_sf(result, x, enc, dataset)
