@@ -13,8 +13,7 @@ from torch.utils.data import Dataset
 
 class DiscreteDataset(Dataset):
 
-    def __init__(self, train_file, test_file, n_domains):
-        domains = np.arange(n_domains)
+    def __init__(self, train_file, test_file, n_domains, domains):
         subsets = ['train', 'test']
         subset_files = [train_file, test_file]
 
@@ -56,9 +55,9 @@ class DiscreteDataset(Dataset):
         return self.data['train'][0][idx], self.data['train'][1][idx]
 
 
-def get_loader(dataset_path, batch_size=16, mode='train', num_workers=1, n_domains=5):
+def get_loader(dataset_path, batch_size=16, mode='train', num_workers=1, n_domains=5, domains=None):
     """Build and return a data loader."""
-    dataset = DiscreteDataset(os.path.join(dataset_path, 'train'), os.path.join(dataset_path, 'test'), n_domains)
+    dataset = DiscreteDataset(os.path.join(dataset_path, 'train'), os.path.join(dataset_path, 'test'), n_domains, domains)
 
     data_loader = data.DataLoader(dataset=dataset,
                                   batch_size=batch_size,

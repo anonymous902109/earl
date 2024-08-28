@@ -1,7 +1,7 @@
 from src.baselines.cf.algorithms.star_gan.main import get_parser, main
 
 
-def train_star_gan(image_size=176, image_channels=3, c_dim=5, batch_size=16, agent=None,
+def train_star_gan(image_size=176, image_channels=3, c_dim=5, batch_size=16, domains=None, agent=None,
                    lambda_counter=1., counter_mode="raw", agent_type="deepq", ablate_agent=False,
                    num_iters=10000, save_path='trained_models', dataset_path="./data"):
     """
@@ -31,6 +31,7 @@ def train_star_gan(image_size=176, image_channels=3, c_dim=5, batch_size=16, age
         f"--image_size={image_size}",
         f"--image_channels={image_channels}",
         f"--c_dim={c_dim}",
+        f"--domains={domains}"
         f"--batch_size={batch_size}",
         f"--rafd_image_dir=../res/datasets/train",
         f"--sample_dir=../res/models/samples",

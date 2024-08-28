@@ -24,7 +24,7 @@ def main(config, agent):
     if not os.path.exists(config.result_dir):
         os.makedirs(config.result_dir)
 
-    data_loader = get_loader(config.dataset_path, config.batch_size, config.mode, num_workers=1, n_domains=config.c_dim)
+    data_loader = get_loader(config.dataset_path, config.batch_size, config.mode, num_workers=1, n_domains=config.c_dim,domains=config.domains)
 
     # Solver for training and testing StarGAN.
     solver = Solver(agent, data_loader, config)

@@ -214,11 +214,16 @@ def _generate_set(size, path, env, agent, agent_type, domains, noop_range, epsil
             else:
                 action = agent.predict(obs)
 
+                if isinstance(obs, list):
+                    obs = np.array(obs)
+
                 if isinstance(action, int):
                     # for discrete actions
-                    observations[action].append(obs.reshape((1, -1)).squeeze())
+                    if action in domains:
+                        observations[action].append(obs.reshape((1, -1)).squeeze())
                 elif isinstance(action, list):
-                    observations[tuple(action)].append(obs.reshape((1, -1)).squeeze())
+                    if tuple(action) in domains:
+                        observations[tuple(action)].append(obs.reshape((1, -1)).squeeze())
                 else:
                     raise ValueError('Only Discrete and MultiDiscrete Gym action spaces are supported for GANterfactual.')
 

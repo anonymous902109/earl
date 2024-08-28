@@ -35,10 +35,12 @@ def main():
     s_gen_5 = SGEN(bb_model, task_name='citibikes', diversity_size=5)
 
     # TODO: add params to GANterfactual
-    # TODO:
     ganterfactual = GANterfactual(env,
-                                  bb_model, num_features=38, nb_domains=5*5*10)
-
+                                  bb_model,
+                                  num_features=38,
+                                  nb_domains=5*5*10,
+                                  domains=[(1, 2, 1), (1, 4, 1), (1, 3, 1)],
+                                  dataset_size=1e3)
 
     sl_task.explain(s_gen_1, save_path='results/sgen1.csv')
     sl_task.explain(s_gen_3, save_path='results/sgen3.csv')
