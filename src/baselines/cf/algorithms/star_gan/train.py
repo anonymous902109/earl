@@ -31,7 +31,7 @@ def train_star_gan(image_size=176, image_channels=3, c_dim=5, batch_size=16, dom
         f"--image_size={image_size}",
         f"--image_channels={image_channels}",
         f"--c_dim={c_dim}",
-        f"--domains={domains}"
+        f"--domains={domains}",
         f"--batch_size={batch_size}",
         f"--rafd_image_dir=../res/datasets/train",
         f"--sample_dir=../res/models/samples",
@@ -53,5 +53,4 @@ def train_star_gan(image_size=176, image_channels=3, c_dim=5, batch_size=16, dom
 
     parser = get_parser()
     config = parser.parse_args(args)
-    print(config)
     main(config, agent)

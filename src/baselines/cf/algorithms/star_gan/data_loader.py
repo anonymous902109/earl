@@ -34,11 +34,18 @@ class DiscreteDataset(Dataset):
     def load_subset(self, domains, path):
         frames = []
         y = []
+
+        label_mapping = {}
+        i = 0
+        for d in domains:
+            label_mapping[d] = i
+            i += 1
+
         for d in domains:
             try:
                 df = pd.read_csv(os.path.join(path, '{}.csv'.format(d)), header=0)
                 frames.append(df)
-                labels = [int(d) for i in range(len(df))]
+                labels = [label_mapping[d] for i in range(len(df))]
                 y = y + labels
             except pd.errors.EmptyDataError:
                 continue

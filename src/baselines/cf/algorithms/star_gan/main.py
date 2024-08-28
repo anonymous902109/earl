@@ -10,7 +10,6 @@ def str2bool(v):
     return v.lower() in ('true')
 
 def main(config, agent):
-    print(config)
     # For fast training.
     cudnn.benchmark = True
 
@@ -35,10 +34,15 @@ def main(config, agent):
             solver.test()
 
 def get_parser():
+    def list_of_tuples(arg):
+        import ast
+        return ast.literal_eval(arg)
+
     parser = argparse.ArgumentParser()
 
     # Model configuration.
     parser.add_argument('--c_dim', type=int, default=5, help='dimension of domain labels (1st datasets)')
+    parser.add_argument('--domains', type=list_of_tuples, default=[], help='domains')
     parser.add_argument('--c2_dim', type=int, default=8, help='dimension of domain labels (2nd datasets)')
     parser.add_argument('--celeba_crop_size', type=int, default=178, help='crop size for the CelebA datasets')
     parser.add_argument('--rafd_crop_size', type=int, default=256, help='crop size for the RaFD datasets')
@@ -109,5 +113,5 @@ if __name__ == '__main__':
     parser = get_parser()
 
     config = parser.parse_args()
-    print(config)
+
     main(config)

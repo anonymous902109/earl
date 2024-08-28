@@ -25,7 +25,6 @@ def main():
               f'--categorical_features={env.categorical_features}',
               f'--continuous_features={env.continuous_features}']
 
-
     # ------ done automatically -----------
     sl_task = SLTask(env, bb_model, outcome, params)
 
@@ -38,7 +37,7 @@ def main():
     ganterfactual = GANterfactual(env,
                                   bb_model,
                                   num_features=38,
-                                  nb_domains=5*5*10,
+                                  c_dim=(5, 5, 10),
                                   domains=[(1, 2, 1), (1, 4, 1), (1, 3, 1)],
                                   dataset_size=1e3)
 

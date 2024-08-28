@@ -13,7 +13,7 @@ from src.baselines.cf.algorithms.star_gan.train import train_star_gan
 
 
 class GANterfactual:
-    def __init__(self, env, bb_model, dataset_size=int(5e5), nb_domains=10, num_features=10,
+    def __init__(self, env, bb_model, dataset_size=int(5e5), c_dim=10, num_features=10,
                  training_timesteps=int(5e3), batch_size=512, domains=None):
         self.env = env
         self.bb_model = bb_model
@@ -24,11 +24,12 @@ class GANterfactual:
 
         # TODO: generator and discriminator architecture should be here too
 
-        self.nb_domains = nb_domains
         if domains is None:
             self.domains = self.generate_domains(self.env)
         else:
             self.domains = domains
+
+        self.nb_domains = len(self.domains)
 
         self.model_save_path = os.path.join('trained_models', 'ganterfactual')
 

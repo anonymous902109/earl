@@ -171,8 +171,6 @@ class Solver(object):
         # Fetch fixed inputs for debugging.
         data_iter = iter(data_loader)
         x_fixed, c_org = next(data_iter)
-        x_fixed = x_fixed.to(self.device)
-        c_fixed_list = self.create_labels(c_org, self.c_dim, self.selected_attrs)
 
         # Learning rate cache for decaying.
         g_lr = self.g_lr
