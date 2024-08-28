@@ -191,7 +191,16 @@ def _generate_set(size, path, env, agent, agent_type, domains, noop_range, epsil
     # if the frame is actually saved as a training sample
     step = 0
 
-    observations = {action: [] for action in domains}
+    action = env.action_space.sample()
+
+    if isinstance(action, int):
+        # for discrete spaces
+        observations = {action: [] for action in domains}
+    elif isinstance(action, np.ndarray) and len(action.shape) == 1:
+        # for multi discrete spaces
+        observations = {tuple(action): [] for action in domains}
+    else:
+        raise ValueError('Only Discrete and MultiDiscrete Gym action spaces are supported for GANterfactual.')
 
     while step < size:
         done = False
@@ -205,7 +214,14 @@ def _generate_set(size, path, env, agent, agent_type, domains, noop_range, epsil
             else:
                 action = agent.predict(obs)
 
-                observations[action].append(obs.reshape((1, -1)).squeeze())
+                if isinstance(action, int):
+                    # for discrete actions
+                    observations[action].append(obs.reshape((1, -1)).squeeze())
+                elif isinstance(action, list):
+                    observations[tuple(action)].append(obs.reshape((1, -1)).squeeze())
+                else:
+                    raise ValueError('Only Discrete and MultiDiscrete Gym action spaces are supported for GANterfactual.')
+
                 step += 1
 
             obs, reward, done, trunc, info = env.step(action)
@@ -241,11 +257,8 @@ def _setup_dicts(target_path, domains):
     except FileExistsError:
         return None, None, False
 
-def generate_dataset_gan(agent, env, dataset_path, nb_samples):
+def generate_dataset_gan(agent, env, dataset_path, nb_samples, nb_domains, domains):
     agent_type = "acer"
-    nb_domains = env.action_space.n
-
-    domains = np.arange(nb_domains)
 
     create_dataset(env, nb_samples, dataset_path, agent, agent_type=agent_type, seed=42, epsilon=0.5, domains=domains)
 

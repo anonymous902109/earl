@@ -34,8 +34,10 @@ class SLTask(Task):
     def sample_facts(self):
         pass
 
-    def explain(self, algorithm):
+    def explain(self, algorithm, save_path=''):
         sfs = algorithm.generate_explanation(self.dataset, self.fact_ids, self.outcome)
+
+        sfs.to_csv(save_path)
 
         return sfs
 

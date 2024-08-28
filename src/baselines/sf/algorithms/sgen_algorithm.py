@@ -62,7 +62,7 @@ class SGENAlg:
         gen_times = []
 
         # generate sfs
-        for test_idx, x in tqdm(enumerate(X_test)):
+        for test_idx, x in enumerate(X_test):
             start = time.time()
             # reorder categorical and continuous features to pass to bbmodel
             x_decoded = self.reorder_features(x, dataset, enc, len(continuous_features.columns))

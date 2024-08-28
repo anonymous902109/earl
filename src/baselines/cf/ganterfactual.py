@@ -1,5 +1,7 @@
+import itertools
 import os
 import time
+import shutil
 
 import numpy as np
 import pandas as pd
@@ -11,41 +13,67 @@ from src.baselines.cf.algorithms.star_gan.train import train_star_gan
 
 
 class GANterfactual:
-    def __init__(self, env, bb_model, params={}, task_name=''):
+    def __init__(self, env, bb_model, dataset_size=int(5e5), nb_domains=10, num_features=10, training_timesteps=int(5e3), batch_size=512):
         self.env = env
         self.bb_model = bb_model
-        self.params = params
-        self.task_name = task_name
+        self.dataset_size = dataset_size
+        self.num_features = num_features
+        self.training_timesteps = training_timesteps
+        self.batch_size = batch_size
 
-        self.nb_domains = self.env.action_space.n
+        # TODO: generator and discriminator architecture should be here too
 
-        self.model_save_path = os.path.join('trained_models', task_name, 'ganterfactual')
+        self.nb_domains = nb_domains
+        self.domains = self.generate_domains(self.env)
 
-        self.generator_path = os.path.join(self.model_save_path, '{}-G.ckpt'.format(params["training_timesteps"]))
+        self.model_save_path = os.path.join('trained_models', 'ganterfactual')
+
+        self.generator_path = os.path.join(self.model_save_path, '{}-G.ckpt'.format(training_timesteps))
 
         try:
-            self.generator = Generator(image_size=self.params['num_features'], c_dim=self.params['num_domains'])
+            self.generator = Generator(image_size=self.num_features, c_dim=self.nb_domains)
             self.generator.eval()
             self.generator.load_state_dict(torch.load(self.generator_path))
         except FileNotFoundError:
             self.run_ganterfactual()
 
+    def generate_domains(self, env):
+        action = env.action_space.sample()
+
+        if isinstance(action, int):
+            return np.arange(env.action_space.n)
+        elif isinstance(action, np.ndarray) and len(action.shape) == 1:
+            ns = [list(np.arange(0, env.action_space[i].n)) for i in range(env.action_space)]
+
+            els = list(itertools.product(*ns))
+
+            return els
+        else:
+            raise ValueError('Only Discrete and MultiDiscrete action spaces are supported')
+
+
+
     def run_ganterfactual(self):
         # TODO: params for ganterfactual should be in json format too
         # generate datasets for training ganterfactual if it does not exist already
-        dataset_path = 'datasets/{}/{}/ganterfactual_data'.format(self.task_name, self.scenario)
+        dataset_path = 'datasets/ganterfactual_data'
         if not os.path.isdir(os.path.join(dataset_path, 'test')):
-            generate_dataset_gan(self.bb_model, self.env, dataset_path, self.params["dataset_n_samples"])
+            generate_dataset_gan(self.bb_model, self.env, dataset_path, self.dataset_size, self.nb_domains, self.domains)
+
+            # try:
+            #     generate_dataset_gan(self.bb_model, self.env, dataset_path, self.dataset_size, self.nb_domains)
+            # except Exception as err:
+            #     print(err)
+            # finally: # TODO: delete ds if any errors
+            #     shutil.rmtree(dataset_path)
 
         # train
-        train_star_gan(self.task_name,
-                       self.task_name,
-                       image_size=self.params['num_features'],
+        train_star_gan(image_size=self.num_features,
                        image_channels=1,
-                       c_dim=self.params['num_domains'],
-                       batch_size=self.params['batch_size'],
+                       c_dim=self.nb_domains,
+                       batch_size=self.batch_size,
                        agent=self.bb_model,
-                       num_iters=self.params["training_timesteps"],
+                       num_iters=self.training_timesteps,
                        save_path=self.model_save_path,
                        dataset_path=dataset_path)
 
