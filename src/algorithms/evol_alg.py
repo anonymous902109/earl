@@ -13,34 +13,44 @@ from src.algorithms.MOOProblem import MOOProblem
 
 class EvolutionaryAlg:
 
-    def __init__(self, env, bb_model, obj, params):
+    def __init__(self, env, bb_model, obj, horizon=5, xu=10, xl=0, n_gen=10, pop_size=100):
         self.env = env
         self.bb_model = bb_model
         self.obj = obj
-        self.params = params
 
-        self.horizon = params['horizon']
-        self.xu = params['xu']
-        self.xl = params['xl']
+        self.horizon = horizon
+        self.xu = xu
+        self.xl = xl
 
-        self.n_gen = params['n_gen']
-        self.pop_size = params['pop_size']
+        self.n_gen = n_gen
+        self.pop_size = pop_size
 
         self.rew_dict = {}
         self.seed = self.set_seed()
 
+        self.n_var = self.determine_n_var(env, horizon)
+
     def set_seed(self, seed=1):
         self.seed = seed
+
+    def determine_n_var(self, env, horizon):
+        action = env.action_space.sample()
+
+        if isinstance(action, np.ndarray):
+            n_var = len(action) * horizon
+            self.xl = self.xl * horizon
+            self.xu = self.xu * horizon
+        elif isinstance(action, int):
+            n_var = horizon
+        else:
+            raise ValueError('Only Discrete and MultiDiscrete action spaces are supported')
+
+        return n_var
 
     def search(self, init_state, fact, target_action, allow_noop=False):
         self.fact = fact
 
         cf_problem = self.generate_problem(fact, allow_noop)
-
-        # init_population = [fact.actions] * self.pop_size
-        # init_population += np.random.randint(-1, 2, size=(self.pop_size, self.horizon))
-        # init_population = np.mod(init_population, self.xu + 1)
-        # init_population = np.array(init_population)
 
         algorithm = NSGA2(pop_size=self.pop_size,
                           sampling=IntegerRandomSampling(),  # TODO: works only for discrete actions maybe need to change
@@ -51,7 +61,7 @@ class EvolutionaryAlg:
                  algorithm,
                  ('n_gen', self.n_gen),
                  seed=self.seed,
-                 verbose=0)
+                 verbose=1) # TODO: should also be a parameter
 
         cfs = cf_problem.cfs
 
@@ -69,7 +79,7 @@ class EvolutionaryAlg:
         n_objectives = len(self.obj.objectives)
         n_constraints = len(self.obj.constraints)
 
-        return MOOProblem(self.horizon, n_objectives, n_constraints, self.xl, self.xu, fact, self.obj)
+        return MOOProblem(self.n_var, n_objectives, n_constraints, self.xl, self.xu, fact, self.obj)
 
     def get_pareto_cfs(self, cfs):
         cost_array = []

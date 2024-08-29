@@ -1,6 +1,6 @@
 
 
-class Task():
+class Task:
 
     def __init__(self):
         pass
@@ -8,5 +8,6 @@ class Task():
     def generate_facts_with_outcome(self):
         pass
 
-    def explain(self, facts, outcome, algorithm):
-        return None
+    def explain(self, algorithm, save_path='results.csv'):
+        pass
+

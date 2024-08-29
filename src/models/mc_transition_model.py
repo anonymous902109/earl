@@ -4,10 +4,11 @@ import random
 import logging
 
 from tqdm import tqdm
+import numpy as np
 
 
 class MonteCarloTransitionModel:
-    def __init__(self, env, bb_model, path='', n_sim=1e6):
+    def __init__(self, env, bb_model, path='transition_model', n_sim=1e6):
         self.env = env
         self.bb_model = bb_model
 
@@ -60,6 +61,9 @@ class MCNode:
         self.visited = 1.0
 
     def add_child(self, action, node):
+        if isinstance(action, np.ndarray) or isinstance(action, list):
+            action = tuple(action)
+
         if action not in self.children.keys():
             self.children[action] = []
 
@@ -74,6 +78,9 @@ class MCNode:
         self.visited += 1
 
     def get_probability(self, action, new_state):
+        if isinstance(action, np.ndarray) or isinstance(action, list):
+            action = tuple(action)
+
         if action not in self.children.keys():
             return 1
 

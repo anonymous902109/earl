@@ -1,3 +1,4 @@
+import argparse
 import copy
 from datetime import datetime
 
@@ -9,8 +10,22 @@ from src.tasks.task import Task
 
 class RLTask(Task):
 
-    def __init__(self):
-        pass
+    def __init__(self, env, bb_model, outcome, horizon=5, max_traj=100, n_ep=10):
+        self.env = env
+        self.bb_model = bb_model
+        self.outcome = outcome
+
+        self.horizon = horizon
+        self.max_traj = max_traj
+        self.n_ep = n_ep
+
+
+        self.facts = self.generate_facts_with_outcome(env,
+                                                      bb_model,
+                                                      outcome,
+                                                      self.horizon,
+                                                      self.max_traj,
+                                                      self.n_ep)
 
     def generate_facts_with_outcome(self, env, bb_model, outcome, horizon, max_traj, n_episodes):
         print('Generating facts for outcome {}'.format(outcome.name))
@@ -54,3 +69,9 @@ class RLTask(Task):
             t.set_outcome(outcome)
 
         return trajectories
+
+    def explain(self, algorithm, save_path='results.csv'):
+        solutions = algorithm.generate_explanation(self.facts, self.outcome)
+
+        solutions.to_csv(save_path)
+        return solutions

@@ -9,15 +9,15 @@ class CfExplObj(AbstractObjective):
     A set of objectives and constraints used for generating backward counterfactuals in ACTER algorithm
     The action proximity is defined for continuous actions
     '''
-    def __init__(self, env, bb_model, params):
+    def __init__(self, env, bb_model, n_sim=10, horizon=5):
 
-        super(CfExplObj, self).__init__(env, bb_model, params)
+        super(CfExplObj, self).__init__(env, bb_model, horizon=horizon, n_sim=n_sim)
         self.bb_model = bb_model
         self.env = env
         self.objectives = ['uncertainty', 'fidelity', 'reachability']
         self.constraints = ['validity']
 
-        self.n_sim = params['n_sim']
+        self.n_sim = n_sim
 
     def validity(self, outcome, obs):
         ''' Evaluates validity based on the outcome '''

@@ -8,16 +8,16 @@ class ScfExplObj(AbstractObjective):
     A set of objectives and constraints used for generating backward counterfactuals in ACTER algorithm
     The action proximity is defined for continuous actions
     '''
-    def __init__(self, env, bb_model, params, transition_model):
+    def __init__(self, env, bb_model, transition_model, horizon=5, n_sim=10):
 
-        super(ScfExplObj, self).__init__(env, bb_model, params, transition_model)
+        super(ScfExplObj, self).__init__(env, bb_model, horizon=horizon, n_sim=n_sim, transition_model=transition_model)
         self.bb_model = bb_model
         self.env = env
         self.transition_model = transition_model
         self.objectives = ['uncertainty', 'fidelity', 'sparsity', 'exceptionality']  # TODO: there is probably a better name for this
         self.constraints = ['validity']  # validity essentially
 
-        self.n_sim = params['n_sim']
+        self.n_sim = n_sim
 
         self.NoOp = -1
 

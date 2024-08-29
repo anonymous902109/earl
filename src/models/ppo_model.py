@@ -72,12 +72,12 @@ class PPOModel:
             a = [a]
 
         prob = 0.0
-        distribution = self.model.policy.get_distribution(x.squeeze()[:-1].reshape(1, -1)).distribution
+        distribution = self.model.policy.get_distribution(x.squeeze().reshape(1, -1)).distribution
 
         for i, action_component in enumerate(distribution):
-            prob += action_component.probs[a[i]]
+            prob += action_component.probs.squeeze()[a[i]]
 
-        return prob
+        return prob.item()
 
     def evaluate(self):
         ''' Evaluates learned policy in the environment '''

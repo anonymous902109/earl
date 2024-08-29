@@ -9,20 +9,37 @@ import numpy as np
 class AbstractObjective:
     ''' Describes an objective function for counterfactual search '''
 
-    def __init__(self, env, bb_model, params, transition_model=None):
-        self.horizon = params['horizon']
+    def __init__(self, env, bb_model, horizon=5, n_sim=10, transition_model=None):
+        self.horizon = horizon
         self.transition_model = transition_model
         self.env = env
         self.bb_model = bb_model
 
-        self.n_sim = params['n_sim']
+        self.n_sim = n_sim
 
         self.noop = -1
 
     def process_actions(self, actions, allow_first_noop=True):
         ''' Process a sequence of actions to remove NoOp from start and the end '''
+        action = self.env.action_space.sample()
+        if isinstance(action, np.ndarray):
+            action_type = 'multi_discrete'
+            action_size = len(action)
+        elif isinstance(action, int):
+            action_type = 'discrete'
+            action_size = 1
+        else:
+            raise ValueError('Only Discrete and MultiDiscrete action spaces are supported')
+
+        if action_type == 'multi_discrete':
+            actions = np.array(actions).reshape(-1, action_size).tolist()
+
         first_real_action_index = 0
-        while (first_real_action_index < len(actions)) and (actions[first_real_action_index] == self.noop):
+        while (first_real_action_index < len(actions)):
+            if (action_type == 'discrete' and (actions[first_real_action_index] != self.noop)) or\
+                    (action_type == 'multi_discrete' and self.noop not in actions[first_real_action_index]):
+                break
+
             first_real_action_index += 1
 
         # this is specifically for prefactuals, where first actions cannot be noops

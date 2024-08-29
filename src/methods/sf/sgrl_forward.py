@@ -3,12 +3,22 @@ from src.methods.abstract_expl_alg import ExplAlgAbstract
 from src.objectives.sf.spf_expl_obj import SpfExplObj
 
 
-class SGRL_Advance(ExplAlgAbstract):
+class SGRLAdvance(ExplAlgAbstract):
 
-    def __init__(self, env, bb_model, params, transition_model):
+    def __init__(self, env, bb_model, transition_model, horizon=5,
+                 n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
         self.env = env
-        self.obj = SpfExplObj(env, bb_model, params, transition_model)
-        self.alg = EvolutionaryAlg(env, bb_model, self.obj, params)
+
+        self.n_sim = n_sim
+        self.xu = xu
+        self.xl = xl
+        self.n_gen = n_gen
+        self.pop_size = pop_size
+        self.horizon = horizon
+
+        self.obj = SpfExplObj(env, bb_model, transition_model, n_sim=n_sim)
+        self.alg = EvolutionaryAlg(env, bb_model, self.obj, horizon=horizon,
+                                   xu=xu, xl=xl, n_gen=n_gen, pop_size=pop_size)
 
     def get_best_cf(self, fact, target):
 

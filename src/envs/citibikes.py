@@ -83,7 +83,7 @@ class CitiBikes(AbstractEnv):
 
         self.obs = obs
 
-        return obs, rew, self.is_done, False, {'bike_shortage': metric['bike_shortage']}
+        return np.array(obs), rew, self.is_done, False, {'bike_shortage': metric['bike_shortage']}
 
     def calculate_reward(self, metric, obs, action):
         num_bikes = 0
@@ -108,7 +108,7 @@ class CitiBikes(AbstractEnv):
 
         self.obs = obs
 
-        return obs, None
+        return np.array(obs), None
 
     def generate_obs(self, decision_event):
         obs = []
