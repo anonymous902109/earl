@@ -1,10 +1,9 @@
-import argparse
 import copy
 from datetime import datetime
 
 from tqdm import tqdm
 
-from src.models.trajectory import Trajectory
+from src.earl.models.trajectory import Trajectory
 from src.tasks.task import Task
 
 

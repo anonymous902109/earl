@@ -8,7 +8,7 @@ import torch
 import numpy as np
 from tqdm import tqdm
 
-from src.models.trajectory import Trajectory
+from src.earl.models.trajectory import Trajectory
 
 
 def seed_everything(seed):

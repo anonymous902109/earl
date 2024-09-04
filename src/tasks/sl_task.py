@@ -1,7 +1,7 @@
 import argparse
 
-from src.models.abstract_dataset import AbstractDataset
-from src.models.sl_fact import SLFact
+from src.earl.models.abstract_dataset import AbstractDataset
+from src.earl.models.sl_fact import SLFact
 from src.tasks.task import Task
 
 

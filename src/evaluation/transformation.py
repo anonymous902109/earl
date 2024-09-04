@@ -1,5 +1,4 @@
 import ast
-import copy
 import os
 import random
 
@@ -14,7 +13,7 @@ from pymoo.optimize import minimize
 from pymoo.problems.functional import FunctionalProblem
 from tqdm import tqdm
 
-from src.outcomes.exact_state_outcome import ExactStateOutcome
+from src.earl.outcomes.exact_state_outcome import ExactStateOutcome
 
 
 def append_feature_metrics(method_names, params, eval_path, scenario):

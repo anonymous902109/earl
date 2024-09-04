@@ -5,20 +5,18 @@ from datetime import datetime
 
 import numpy as np
 
-from src.baselines.cf.ganterfactual import GANterfactual
-from src.baselines.sf.sgen import SGEN
+from src.earl.baselines.cf import GANterfactual
+from src.earl.baselines.sf import SGEN
 from src.envs.env_factory import EnvFactory
 from src.evaluation.evaluating_expl import evaluate_explanations
 from src.evaluation.transformation import append_feature_metrics
-from src.methods.cf.raccer_hts import RACCERHTS
-from src.methods.cf.raccer_rewind import NSGARaccerRewind
-from src.methods.cf.raccer_advance import NSGARaccerAdvance
-from src.methods.sf.sgrl_backward import SGRL_Rewind
-from src.methods.sf.sgrl_forward import SGRL_Advance
+from src.earl.methods.cf.raccer_hts import RACCERHTS
+from src.earl.methods.cf.raccer_rewind import NSGARaccerRewind
+from src.earl.methods.cf import NSGARaccerAdvance
 from src.models.datasets.dataset_factory import BaselineDatasetFactory
-from src.models.dqn_model import DQNModel
-from src.models.mc_transition_model import MonteCarloTransitionModel
-from src.outcomes.one_action_outcome import OneActionOutcome
+from src.earl.models.dqn_model import DQNModel
+from src.earl.models.mc_transition_model import MonteCarloTransitionModel
+from src.earl.outcomes.one_action_outcome import OneActionOutcome
 from src.utils.util import seed_everything, generate_facts_with_action_outcome
 
 

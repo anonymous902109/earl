@@ -1,12 +1,9 @@
 import copy
-import os
-import pickle
-import random
 from datetime import datetime
 
 from tqdm import tqdm
 
-from src.models.trajectory import Trajectory
+from src.earl.models.trajectory import Trajectory
 
 
 def generate_facts_with_outcome(env, bb_model, outcome, path, horizon=5, n_episodes=10000, max_traj=100):
