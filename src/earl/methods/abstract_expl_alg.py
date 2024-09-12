@@ -32,8 +32,6 @@ class ExplAlgAbstract:
         columns = ['Fact_id', 'Fact', 'Explanation', 'Recourse'] + objs + constraints + ['gen_time']
         res_df = pd.DataFrame(result_data, columns=columns)
 
-        res_df.to_csv(eval_path, index=False)
-
         return res_df
 
     def get_best_cf(self, fact, target):

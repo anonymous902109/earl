@@ -1,5 +1,5 @@
 
-from src.earl.algorithms.evol_alg import EvolutionaryAlg
+from src.earl.algorithms.evolutionary.evol_alg import EvolutionaryAlg
 from src.earl.methods.abstract_expl_alg import ExplAlgAbstract
 from src.earl.objectives.cf.cf_expl_obj import CfExplObj
 

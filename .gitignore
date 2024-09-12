@@ -6,8 +6,8 @@ __pycache__/
 .idea/
 
 data/
-datasets/
-trained_models/
+citibikes/datasets/
+citibikes/trained_models/
 facts/
 
 # C extensions

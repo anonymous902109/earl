@@ -1,4 +1,4 @@
-from src.earl.algorithms.evol_alg import EvolutionaryAlg
+from src.earl.algorithms.evolutionary.evol_alg import EvolutionaryAlg
 from src.earl.methods.abstract_expl_alg import ExplAlgAbstract
 from src.earl.objectives.sf.scf_expl_obj import ScfExplObj
 
@@ -19,7 +19,7 @@ class SGRLRewind(ExplAlgAbstract):
         self.obj = ScfExplObj(env, bb_model, transition_model, self.n_sim)
         self.alg = EvolutionaryAlg(env, bb_model, self.obj, horizon=horizon, xl=self.xl, xu=self.xu, n_gen=self.n_gen, pop_size=self.pop_size)
 
-    def get_best_cf(self, fact, target):
+    def explain(self, fact, target):
         cfs = self.alg.search(init_state=fact, fact=fact, target_action=target, allow_noop=True)
 
         return cfs

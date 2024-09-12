@@ -1,6 +1,6 @@
-from src.earl.algorithms.hts import HTSAlgorithm
+from src.earl.algorithms.hts.hts import HTSAlgorithm
 from src.earl.methods.abstract_expl_alg import ExplAlgAbstract
-from src.earl.models.counterfactual import CF
+from src.earl.models.util.counterfactual import CF
 from src.earl.objectives.cf.pf_expl_obj import PfExplObj
 
 
