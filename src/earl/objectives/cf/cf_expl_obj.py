@@ -19,9 +19,9 @@ class CfExplObj(AbstractObjective):
 
         self.n_sim = n_sim
 
-    def validity(self, outcome, obs):
+    def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
-        valid_outcome = outcome.cf_outcome(obs)
+        valid_outcome = self.bb_model(obs) == target_action
         # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 

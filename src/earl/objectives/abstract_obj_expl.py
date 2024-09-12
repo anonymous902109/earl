@@ -66,9 +66,10 @@ class AbstractObjective:
         ''' Returns the fist state given the first action index '''
         return None, None
 
-    def validity(self, outcome, obs):
+    def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
-        valid_outcome = outcome.sf_outcome(obs)
+        # valid_outcome = outcome.sf_outcome(obs)
+        valid_outcome = self.bb_model.predict(obs) == target_action
         # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 
@@ -141,7 +142,8 @@ class AbstractObjective:
             done = False
             early_break = False
 
-            obs = copy.copy(first_state)
+            # obs = copy.copy(first_state)
+            obs = self.env.state
 
             for a in actions:
                 if done:
@@ -164,7 +166,7 @@ class AbstractObjective:
 
             if not early_break and not done:
                 # check if validity is satisfied
-                validity = self.validity(fact.outcome, obs)
+                validity = self.validity(fact.target_action, obs)
                 target_outcome += int(not validity)
 
                 if validity == 0:

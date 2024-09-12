@@ -109,7 +109,7 @@ class CitiBikes(AbstractEnv):
         obs = []
 
         stations = self.gym_env.current_frame.stations
-
+        # TODO: probably no sense in including decision_event in state - check without it
         if decision_event is None:
             obs.append(self.decision_types['NONE'])
         elif decision_event.type == DecisionType.Supply:
@@ -157,6 +157,8 @@ class CitiBikes(AbstractEnv):
             station_info = state[s_id]
             for var_name, var_val in station_info.items():
                 setattr(self.gym_env.current_frame.stations[s_id], var_name, var_val)
+
+        self.state = self.generate_obs(None)
 
     def get_state(self):
         state = {}
