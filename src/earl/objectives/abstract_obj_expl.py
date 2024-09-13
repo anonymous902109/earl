@@ -73,18 +73,6 @@ class AbstractObjective:
         # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 
-    def action_proximity(self, fact, actions):
-        # TODO: this has to include first_action_index too
-        fact_traj = self.combine(fact.states, fact.actions)
-        cf_traj = self.get_trajectory(fact, actions)
-
-        fact_enc = self.enc_dec.encode(fact_traj)
-        cf_enc = self.enc_dec.encode(cf_traj)
-
-        distance = math.sqrt(sum((fact_enc - cf_enc) ** 2))
-
-        return distance
-
     def recency(self, fact, actions):
         # TODO: this has to include first_action_index
         diff = [fact.actions[i] != actions[i] for i in range(len(actions))]

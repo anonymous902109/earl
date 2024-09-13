@@ -35,8 +35,8 @@ def main():
     sl_facts = []
     rl_facts = []
     importances = []
+    domains = []
 
-    target = (1, 0, 2)
     for i in tqdm(range(n_ep)):
         done = False
         obs, _ = env.reset()
@@ -56,8 +56,8 @@ def main():
                     del sl_facts[min_index]
                     del rl_facts[min_index]
 
-                sl_fact = SLFact(obs, action, target)
-                rl_fact = RLFact(obs, action, target, prev_states, env_states=[], actions=actions, horizon=horizon)
+                sl_fact = SLFact(obs, action)
+                rl_fact = RLFact(obs, action, prev_states, env_states=[], actions=actions, horizon=horizon)
 
                 rl_facts.append(rl_fact)
                 sl_facts.append(sl_fact)
@@ -67,25 +67,37 @@ def main():
             prev_states.append(env.get_state())
             obs, rew, done, trunc, info = env.step(action)
 
-    # s_gen_1 = SGEN(env, bb_model, diversity_size=1, params=params)
-    # s_gen_3 = SGEN(env, bb_model, diversity_size=3, params=params)
-    # s_gen_5 = SGEN(env, bb_model, diversity_size=5, params=params)
-    #
-    # ganterfactual = GANterfactual(env,
-    #                               bb_model,
-    #                               batch_size=64,
-    #                               num_features=38,
-    #                               domains=[(1, 2, 2), (1, 0, 2)],
-    #                               dataset_size=5e5)
+    domains = [bb_model.predict(f.state) for f in sl_facts]
 
-    transition_model = MonteCarloTransitionModel(env, bb_model, n_sim=10)
+    s_gen_1 = SGEN(env, bb_model, diversity_size=1, params=params)
+    s_gen_3 = SGEN(env, bb_model, diversity_size=3, params=params)
+    s_gen_5 = SGEN(env, bb_model, diversity_size=5, params=params)
 
-    SGRL_Rewind = SGRLRewind(env, bb_model, transition_model, xl=[0, 0, 0], xu=[4, 4, 9])
-    SGRL_Advance = SGRLAdvance(env, bb_model, transition_model)
+    ganterfactual = GANterfactual(env,
+                                  bb_model,
+                                  batch_size=64,
+                                  num_features=38,
+                                  domains=domains,
+                                  dataset_size=5e5)
+
+    sl_methods = [s_gen_1, s_gen_3, s_gen_5, ganterfactual]
+
+    for m, i in enumerate(sl_methods):
+        for f in sl_facts:
+            cf = m.explain(f, target=(1, 0, 2))
+            print(cf)
+
+    SGRL_Rewind = SGRLRewind(env, bb_model, xl=[0, 0, 0], xu=[4, 4, 9])
+    SGRL_Advance = SGRLAdvance(env, bb_model)
     RACCER_Rewind = NSGARaccerRewind(env, bb_model)
     RACCER_Advance = NSGARaccerAdvance(env, bb_model)
 
-    SGRL_Rewind.explain(rl_facts[0], target=(1,2,0))
+    rl_methods = [SGRL_Advance, SGRL_Rewind, RACCER_Advance, RACCER_Rewind]
+    rl_eval_paths = ['sgrl_advance.csv', 'sgrl_rewind.csv', 'raccer_advance.csv', 'raccer_rewind.csv']
+
+    for m, i in enumerate(sl_methods):
+        for f in sl_facts:
+            m.explain(f, target=(1, 0, 2), eval_path=rl_eval_paths[i])
 
 
 if __name__ == '__main__':

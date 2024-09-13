@@ -10,9 +10,10 @@ import torch
 from src.earl.algorithms.star_gan.dataset_generation import generate_dataset_gan
 from src.earl.algorithms.star_gan.model import Generator
 from src.earl.algorithms.star_gan.train import train_star_gan
+from src.earl.methods.abstract_method import AbstractMethod
 
 
-class GANterfactual:
+class GANterfactual(AbstractMethod):
     def __init__(self, env, bb_model, dataset_size=int(5e5), num_features=10,
                  training_timesteps=int(5e3), batch_size=512, domains=None, params={}):
         self.env = env

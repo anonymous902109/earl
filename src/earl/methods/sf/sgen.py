@@ -3,10 +3,11 @@ from tqdm import tqdm
 import pandas as pd
 
 from src.earl.algorithms.s_gen.sgen_algorithm import SGENAlg
+from src.earl.methods.abstract_method import AbstractMethod
 from src.earl.models.util.abstract_dataset import AbstractDataset
 
 
-class SGEN():
+class SGEN(AbstractMethod):
     ''' SGEN algorithm for generating semi-factual explanations '''
     def __init__(self, env, bb_model, params, diversity_size=3, pop_size=100, n_gen=10):
         self.diversity_size = diversity_size
@@ -14,9 +15,21 @@ class SGEN():
         self.n_gen = n_gen
         self.bb_model = bb_model
 
-        self.dataset = AbstractDataset(env, bb_model, params)
+        self.params = self.process_params(params)
+
+        self.dataset = AbstractDataset(env, bb_model, self.params)
 
         self.alg = SGENAlg(self.bb_model,  self.diversity_size, self.pop_size, self.n_gen)
+
+    def explain(self, fact, target):
+        df = self.dataset.get_dataset()
+        df.append(fact.state + [self.bb_model.predict(fact.state)])
+
+        sf_df = self.alg.generate_sfs(self.dataset, df, target, test_ids=[len(df)])
+
+        sf_df['Explanation'] = self.dataset.transform_from_baseline_format(sf_df)
+
+        return sf_df['Explanation'].values
 
     def generate_explanation(self, fact_dataset, fact_ids, target,  outcome):
         print('Running SGEN with diversity = {} for {} facts'.format(self.diversity_size, len(fact_ids)))

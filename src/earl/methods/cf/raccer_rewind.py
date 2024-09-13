@@ -1,9 +1,10 @@
 
 from src.earl.algorithms.evolutionary.evol_alg import EvolutionaryAlg
 from src.earl.methods.abstract_expl_alg import ExplAlgAbstract
+from src.earl.methods.abstract_method import AbstractMethod
 from src.earl.objectives.cf.cf_expl_obj import CfExplObj
 
-class NSGARaccerRewind(ExplAlgAbstract):
+class NSGARaccerRewind(AbstractMethod):
 
     def __init__(self, env, bb_model, horizon=5,
                  n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):

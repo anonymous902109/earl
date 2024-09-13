@@ -1,12 +1,14 @@
 from src.earl.algorithms.evolutionary.evol_alg import EvolutionaryAlg
 from src.earl.methods.abstract_expl_alg import ExplAlgAbstract
+from src.earl.methods.abstract_method import AbstractMethod
+from src.earl.models.util.mc_transition_model import MonteCarloTransitionModel
 from src.earl.objectives.sf.spf_expl_obj import SpfExplObj
 
 
-class SGRLAdvance(ExplAlgAbstract):
+class SGRLAdvance(AbstractMethod):
 
-    def __init__(self, env, bb_model, transition_model, horizon=5,
-                 n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
+    def __init__(self, env, bb_model,
+                 horizon=5, n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
         self.env = env
 
         self.n_sim = n_sim
@@ -16,7 +18,9 @@ class SGRLAdvance(ExplAlgAbstract):
         self.pop_size = pop_size
         self.horizon = horizon
 
-        self.obj = SpfExplObj(env, bb_model, transition_model, n_sim=n_sim)
+        self.transition_model = MonteCarloTransitionModel(env, bb_model, n_sim=10)
+
+        self.obj = SpfExplObj(env, bb_model, self.transition_model, n_sim=n_sim)
         self.alg = EvolutionaryAlg(env, bb_model, self.obj, horizon=horizon,
                                    xu=xu, xl=xl, n_gen=n_gen, pop_size=pop_size)
 
