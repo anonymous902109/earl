@@ -90,6 +90,19 @@ class PPOModel:
 
         return prob.item()
 
+    def get_importance(self, x):
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x).unsqueeze(0)
+
+        distribution = self.model.policy.get_distribution(x.squeeze().reshape(1, -1)).distribution
+        imp = 0.0
+
+        for i, action_component in enumerate(distribution):
+            q_vals = action_component.probs.squeeze()
+            imp += max(q_vals) - min(q_vals)
+
+        return imp.item()
+
     def evaluate(self):
         ''' Evaluates learned policy in the environment '''
         avg_rew = evaluate_policy(self.model, self.env, n_eval_episodes=10, deterministic=True)

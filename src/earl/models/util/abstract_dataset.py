@@ -39,7 +39,7 @@ class AbstractDataset:
 
         return df
 
-    def collect_dataset(self, env, bb_model, outcome, select_important):
+    def collect_dataset(self, env, bb_model):
         dataset = []
         n_ep = 10
         print('Generating dataset ...')

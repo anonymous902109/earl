@@ -14,8 +14,13 @@ from src.earl.methods.abstract_method import AbstractMethod
 
 
 class GANterfactual(AbstractMethod):
-    def __init__(self, env, bb_model, dataset_size=int(5e5), num_features=10,
-                 training_timesteps=int(5e3), batch_size=512, domains=None, params={}):
+    def __init__(self, env, bb_model, dataset_size=int(5e5), num_features=10, training_timesteps=int(5e3),
+                 batch_size=512, domains=None, dataset_path='datasets/ganterfactual_data', params=None):
+        super().__init__()
+
+        if params is None:
+            params = {}
+
         self.env = env
         self.bb_model = bb_model
         self.dataset_size = dataset_size
@@ -23,6 +28,7 @@ class GANterfactual(AbstractMethod):
         self.training_timesteps = training_timesteps
         self.batch_size = batch_size
         self.params = params
+        self.dataset_path = dataset_path
 
         # TODO: generator and discriminator architecture should be here too
         if domains is None:
@@ -58,12 +64,11 @@ class GANterfactual(AbstractMethod):
 
     def run_ganterfactual(self):
         # generate datasets for training ganterfactual if it does not exist already
-        dataset_path = 'datasets/ganterfactual_data'
-        if not os.path.isdir(os.path.join(dataset_path, 'test')):
+        if not os.path.isdir(os.path.join(self.dataset_path, 'test')):
             try:
                 generate_dataset_gan(self.bb_model,
                                      self.env,
-                                     dataset_path,
+                                     self.dataset_path,
                                      self.dataset_size,
                                      self.nb_domains,
                                      self.domains)

@@ -87,11 +87,8 @@ class CitiBikes(AbstractEnv):
         if action is not None:
             num_bikes = action.number
 
-        stations = self.gym_env.current_frame.stations
-
         bike_shortage = metric['bike_shortage']
         trip_requirements = metric['trip_requirements']
-        fulfillment = sum([s.fulfillment for s in stations])
 
         rew = -(bike_shortage*10.0) / trip_requirements - 0.01 * num_bikes
         return rew

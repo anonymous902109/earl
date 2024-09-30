@@ -9,8 +9,9 @@ from src.earl.methods.sf.sgrl_backward import SGRLRewind
 from src.earl.methods.sf.sgrl_forward import SGRLAdvance
 
 from src.earl.models.bb_models.ppo_model import PPOModel
-from src.earl.models.facts.sl_fact import SLFact
 from src.earl.models.facts.rl_fact import RLFact
+from src.earl.models.facts.sl_fact import SLFact
+
 from src.earl.models.util.mc_transition_model import MonteCarloTransitionModel
 
 from src.earl.utils.util import seed_everything
@@ -21,16 +22,16 @@ def main():
     seed_everything(0)
     env = CitiBikes()
 
-    bb_model = PPOModel(env, 'citibikes/trained_models/citibikes', arch=[512, 512], verbose=1)
+    bb_model = PPOModel(env, 'citibikes/trained_models/citibikes', arch=[512, 512], training_timesteps=5e5, lr=0.0005, batch_size=512, verbose=1)
     print(bb_model.evaluate())
 
     params = [f'--columns={env.state_feature_names}',
               f'--categorical_features={env.categorical_features}',
               f'--continuous_features={env.continuous_features}']
 
-    n_ep = 1
+    n_ep = 100
     horizon = 5
-    n_facts = 1
+    n_facts = 100
 
     sl_facts = []
     rl_facts = []
@@ -46,8 +47,7 @@ def main():
         while not done:
             action = bb_model.predict(obs)
 
-            q_vals = [bb_model.get_action_prob(obs, a) for a in env.get_actions()]
-            importance = max(q_vals) - min(q_vals)
+            importance = bb_model.get_importance(obs)
 
             if (not len(importances)) or (importance > min(importances) and len(prev_states) >= horizon):
                 if len(importances) > n_facts:
@@ -67,7 +67,7 @@ def main():
             prev_states.append(env.get_state())
             obs, rew, done, trunc, info = env.step(action)
 
-    domains = [bb_model.predict(f.state) for f in sl_facts]
+    domains = list({tuple(bb_model.predict(f.state)) for f in sl_facts})
 
     s_gen_1 = SGEN(env, bb_model, diversity_size=1, params=params)
     s_gen_3 = SGEN(env, bb_model, diversity_size=3, params=params)
@@ -78,7 +78,8 @@ def main():
                                   batch_size=64,
                                   num_features=38,
                                   domains=domains,
-                                  dataset_size=5e5)
+                                  dataset_size=5e5,
+                                  dataset_path='citibikes/datasets/ganterfactual_data')
 
     sl_methods = [s_gen_1, s_gen_3, s_gen_5, ganterfactual]
 
@@ -95,7 +96,7 @@ def main():
     rl_methods = [SGRL_Advance, SGRL_Rewind, RACCER_Advance, RACCER_Rewind]
     rl_eval_paths = ['sgrl_advance.csv', 'sgrl_rewind.csv', 'raccer_advance.csv', 'raccer_rewind.csv']
 
-    for m, i in enumerate(sl_methods):
+    for m, i in enumerate(rl_methods):
         for f in sl_facts:
             m.explain(f, target=(1, 0, 2), eval_path=rl_eval_paths[i])
 
