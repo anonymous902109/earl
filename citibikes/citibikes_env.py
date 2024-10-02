@@ -172,3 +172,23 @@ class CitiBikes(AbstractEnv):
 
     def get_env_state(self):
         return None
+
+    def realistic(self, state):
+        '''
+        State is not plausible in the environment if at any station there are any of the following:
+            1) more bikes than its capacity
+            2) higher fulfilment than its capacity
+            3) higher shortage than its capacity
+        '''
+        for station_id in range(self.num_stations):
+            bikes_index = 3 + station_id * len(self.station_features)
+            capacity_index = bikes_index + 1
+            fulfilment_index = bikes_index + 2
+            shortage_index = bikes_index + 3
+
+            if state[bikes_index] > state[capacity_index] or state[fulfilment_index] > state[capacity_index] or state[shortage_index] > state[capacity_index]:
+                return False
+
+        return True
+
+

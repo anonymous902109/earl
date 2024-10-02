@@ -265,7 +265,7 @@ def _setup_dicts(target_path, domains):
 def generate_dataset_gan(agent, env, dataset_path, nb_samples, nb_domains, domains):
     agent_type = "acer"
 
-    create_dataset(env, nb_samples, dataset_path, agent, agent_type=agent_type, seed=42, epsilon=0.5, domains=domains)
+    create_dataset(env, nb_samples, dataset_path, agent, agent_type=agent_type, seed=42, epsilon=0.2, domains=domains)
 
     under_sample(dataset_path, min_size=nb_samples / nb_domains, domains=domains)
     create_unique_dataset(dataset_path, dataset_path, domains)

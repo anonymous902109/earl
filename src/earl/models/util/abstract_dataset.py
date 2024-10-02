@@ -31,6 +31,7 @@ class AbstractDataset:
         """
         Creates a csv dataset from given facts suitable for SL-based approaches
         """
+        print('Preparing dataset for SGEN algorithm...')
         dataset = self.collect_dataset(env, bb_model)
 
         columns = self.columns+['Action']
@@ -41,8 +42,7 @@ class AbstractDataset:
 
     def collect_dataset(self, env, bb_model):
         dataset = []
-        n_ep = 10
-        print('Generating dataset ...')
+        n_ep = 100
         for i in tqdm(range(n_ep)):
             obs, _ = env.reset()
             done = False

@@ -99,7 +99,7 @@ class PPOModel:
 
         for i, action_component in enumerate(distribution):
             q_vals = action_component.probs.squeeze()
-            imp += max(q_vals) - min(q_vals)
+            imp += abs(max(q_vals) - min(q_vals))
 
         return imp.item()
 

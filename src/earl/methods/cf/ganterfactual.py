@@ -66,6 +66,7 @@ class GANterfactual(AbstractMethod):
         # generate datasets for training ganterfactual if it does not exist already
         if not os.path.isdir(os.path.join(self.dataset_path, 'test')):
             try:
+                print('Preparing dataset for GANterfactual-RL...')
                 generate_dataset_gan(self.bb_model,
                                      self.env,
                                      self.dataset_path,
@@ -74,10 +75,11 @@ class GANterfactual(AbstractMethod):
                                      self.domains)
             except (ValueError, TypeError) as err:
                 print(err)
-                if os.path.exists(dataset_path):
-                    shutil.rmtree(dataset_path)
+                if os.path.exists(self.dataset_path):
+                    shutil.rmtree(self.dataset_path)
 
         # train
+        print('Training GANterfactual-RL...')
         train_star_gan(image_size=self.num_features,
                        image_channels=1,
                        c_dim=self.nb_domains,
@@ -86,7 +88,7 @@ class GANterfactual(AbstractMethod):
                        agent=self.bb_model,
                        num_iters=self.training_timesteps,
                        save_path=self.model_save_path,
-                       dataset_path=dataset_path)
+                       dataset_path=self.dataset_path)
 
     def explain(self, fact, target):
         ''' Returns all cfs found in the tree '''
