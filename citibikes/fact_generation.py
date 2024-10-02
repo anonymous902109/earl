@@ -74,7 +74,7 @@ def get_facts(env, bb_model, horizon=10, perc=0.1, n_states=100):
 
             include, target_action = if_include(thresholds, bb_model, action, obs, common_actions)
 
-            if include and len(prev_states) >= horizon and tuple(target_action) in common_actions and tuple(action) in common_actions:
+            if include and len(prev_states) >= horizon and tuple(action) in common_actions:
                 sl_fact = SLFact(obs, action, target_action)
                 rl_fact = RLFact(obs, action, prev_states, env_states=[], actions=actions, horizon=horizon, target_action=target_action)
 
@@ -113,7 +113,7 @@ def if_include(thresholds, bb_model, action, obs, common_actions):
         possible_target_actions = [ta for ta in common_actions if action[most_informative_dim] != ta[most_informative_dim] and sum(np.array(action) == np.array(ta)) == 2]
 
         if len(possible_target_actions) > 0:
-            target_action = random.sample(possible_target_actions, 1)
+            target_action = random.sample(possible_target_actions, 1)[0]
             return True, target_action
 
     return include, target_action
