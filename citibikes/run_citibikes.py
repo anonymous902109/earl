@@ -42,13 +42,14 @@ def main():
                                   batch_size=64,
                                   num_features=38,
                                   domains=domains,
+                                  training_timesteps=4500,
                                   dataset_size=5e5,
                                   dataset_path='citibikes/datasets/ganterfactual_data')
 
     sl_methods = [s_gen_1, s_gen_3, s_gen_5, ganterfactual]
     sl_eval_paths = ['s_gen_1', 's_gen_3', 's_gen_5', 'ganterfactual']
 
-    for m, i in enumerate(sl_methods):
+    for i, m in enumerate(sl_methods):
         record = []
         for f in sl_facts:
             start = time.time()
@@ -68,7 +69,7 @@ def main():
     rl_methods = [SGRL_Advance, SGRL_Rewind, RACCER_Advance, RACCER_Rewind]
     rl_eval_paths = ['sgrl_advance.csv', 'sgrl_rewind.csv', 'raccer_advance.csv', 'raccer_rewind.csv']
 
-    for m, i in enumerate(rl_methods):
+    for i, m in enumerate(rl_methods):
         record = []
         for f in sl_facts:
             start = time.time()
