@@ -21,7 +21,7 @@ class SGRLRewind(AbstractMethod):
 
         self.transition_model = MonteCarloTransitionModel(env, bb_model, n_sim=10)
 
-        self.obj = ScfExplObj(env, bb_model, self.transition_model, self.n_sim)
+        self.obj = ScfExplObj(env, bb_model, self.transition_model, horizon, self.n_sim)
         self.alg = EvolutionaryAlg(env, bb_model, self.obj, horizon=horizon, xl=self.xl, xu=self.xu, n_gen=self.n_gen, pop_size=self.pop_size)
 
     def explain(self, fact, target):

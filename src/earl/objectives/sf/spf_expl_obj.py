@@ -7,13 +7,13 @@ class SpfExplObj(AbstractObjective):
     A set of objectives and constraints used for generating backward counterfactuals in ACTER algorithm
     The action proximity is defined for continuous actions
     '''
-    def __init__(self, env, bb_model, transition_model, n_sim):
+    def __init__(self, env, bb_model, horizon, transition_model, n_sim):
 
-        super(SpfExplObj, self).__init__(env, bb_model, transition_model, n_sim)
+        super(SpfExplObj, self).__init__(env, bb_model, horizon=horizon, transition_model=transition_model, n_sim=n_sim)
         self.bb_model = bb_model
         self.env = env
         self.transition_model = transition_model
-        self.objectives = ['uncertainty', 'fidelity', 'sparsity', 'exceptionality']  # TODO: there is probably a better name for this
+        self.objectives = ['uncertainty', 'fidelity', 'sparsity', 'exceptionality']
         self.constraints = ['validity']  # validity essentially
 
         self.n_sim = n_sim

@@ -21,8 +21,8 @@ class CfExplObj(AbstractObjective):
 
     def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
-        valid_outcome = self.bb_model(obs) == target_action
-        # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
+        valid_outcome = self.bb_model.predict(obs) == target_action
+        # IMPORTANT: return 1 if the class has not changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 
     def evaluate(self, fact, actions):
@@ -57,7 +57,7 @@ class CfExplObj(AbstractObjective):
 
 
     def get_first_state(self, fact, first_action_index):
-        return copy.copy(fact.states[first_action_index]), copy.deepcopy(fact.env_states[first_action_index])
+        return copy.copy(fact.get_state(first_action_index)), copy.deepcopy(fact.get_env_state(first_action_index))
 
 
 

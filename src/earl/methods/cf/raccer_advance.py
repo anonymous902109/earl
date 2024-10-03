@@ -8,6 +8,7 @@ class NSGARaccerAdvance(AbstractMethod):
 
     def __init__(self, env, bb_model, horizon=5,
                  n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
+
         self.obj = PfExplObj(env, bb_model, n_sim=n_sim, horizon=horizon)
         self.alg = EvolutionaryAlg(env, bb_model, self.obj,
                                    horizon=horizon, xu=xu, xl=xl, n_gen=n_gen, pop_size=pop_size)
@@ -19,7 +20,7 @@ class NSGARaccerAdvance(AbstractMethod):
         self.pop_size = pop_size
         self.horizon = horizon
 
-    def get_best_cf(self, fact, target):
+    def explain(self, fact, target):
         cfs = self.alg.search(init_state=fact, fact=fact, target_action=target)
 
         return cfs

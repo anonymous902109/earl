@@ -80,6 +80,8 @@ class CitiBikes(AbstractEnv):
 
         obs = self.generate_obs(decision_event)
 
+        self.state = np.array(obs)
+
         return np.array(obs), rew, self.is_done, False, {'bike_shortage': metric['bike_shortage']}
 
     def calculate_reward(self, metric, action):
@@ -99,6 +101,8 @@ class CitiBikes(AbstractEnv):
         self.gym_env.reset()
         self.gym_env.step(None)
         obs = self.generate_obs(None)
+
+        self.state = np.array(obs)
 
         return np.array(obs), None
 
@@ -150,25 +154,28 @@ class CitiBikes(AbstractEnv):
             return actions
 
     def set_nonstoch_state(self, state, env_state=None):
+        state_dict = {station_id: {} for station_id in range(self.num_stations)}
+
+        curr = 3
+        for i in range(self.num_stations):
+            for f in self.station_features:
+                state_dict[i][f] = state[curr]
+                curr += 1
+
         for s_id in range(self.num_stations):
-            station_info = state[s_id]
+            station_info = state_dict[s_id]
             for var_name, var_val in station_info.items():
                 setattr(self.gym_env.current_frame.stations[s_id], var_name, var_val)
+
+        for s_id in range(self.num_stations):
+            shared_info = state[-len(self.shared_features):]
+            for i, var_val in enumerate(shared_info):
+                setattr(self.gym_env.current_frame.stations[s_id], self.shared_features[i], var_val)
 
         self.state = self.generate_obs(None)
 
     def get_state(self):
-        state = {}
-        for s_id in range(self.num_stations):
-            station_info = {}
-            station = self.gym_env.current_frame.stations[s_id]
-            variables = [a for a in dir(station) if not a.startswith('__')]
-            for v in variables:
-                station_info[v] = getattr(station, v)
-
-            state[s_id] = station_info
-
-        return state
+        return self.state
 
     def get_env_state(self):
         return None

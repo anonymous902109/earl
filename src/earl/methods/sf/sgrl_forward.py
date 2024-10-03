@@ -18,9 +18,9 @@ class SGRLAdvance(AbstractMethod):
         self.pop_size = pop_size
         self.horizon = horizon
 
-        self.transition_model = MonteCarloTransitionModel(env, bb_model, n_sim=10)
+        self.transition_model = MonteCarloTransitionModel(env, bb_model, n_sim=1000)
 
-        self.obj = SpfExplObj(env, bb_model, self.transition_model, n_sim=n_sim)
+        self.obj = SpfExplObj(env, bb_model, horizon, self.transition_model, n_sim=n_sim)
         self.alg = EvolutionaryAlg(env, bb_model, self.obj, horizon=horizon,
                                    xu=xu, xl=xl, n_gen=n_gen, pop_size=pop_size)
 
