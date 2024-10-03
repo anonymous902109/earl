@@ -11,7 +11,7 @@ from src.earl.models.facts.sl_fact import SLFact
 
 def get_importance_thresholds(env, bb_model, perc=0.1):
     print('Calculating importance thresholds...')
-    n_ep = 100
+    n_ep = 10
 
     importances_from = []
     importances_to = []
@@ -60,7 +60,7 @@ def get_facts(env, bb_model, horizon=10, perc=0.1, n_states=100):
     sl_facts = []
     rl_facts = []
 
-    n_ep = 100
+    n_ep = 10
 
     print('Collecting facts...')
     for i in tqdm(range(n_ep)):

@@ -22,11 +22,16 @@ class SGEN(AbstractMethod):
         self.alg = SGENAlg(self.bb_model,  self.diversity_size, self.pop_size, self.n_gen)
 
     def explain(self, fact, target):
+        # append fact to the end of the dataset
         df = self.dataset.get_dataset()
-        df.append(fact.state + [self.bb_model.predict(fact.state)])
+        action = self.bb_model.predict(fact.state)
+        fact_row = list(fact.state) + [tuple(action)]
+        df = pd.concat([df, pd.DataFrame([fact_row], columns=df.columns)])
 
-        sf_df = self.alg.generate_sfs(self.dataset, df, target, test_ids=[len(df)])
+        # run SGEN for only one fact - the last row in the dataframe
+        sf_df = self.alg.generate_sfs(self.dataset, df, target_action=action, test_ids=[len(df)-1])
 
+        # transform generated explanation to the correct format
         sf_df['Explanation'] = self.dataset.transform_from_baseline_format(sf_df)
 
         return sf_df['Explanation'].values

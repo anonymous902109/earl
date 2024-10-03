@@ -45,7 +45,8 @@ class SGENAlg:
         data = np.concatenate((continuous_features.values, categorical_features_enc), axis=1)
 
         X_train = data[(df.training == 1).values]
-        y_train = df[df.training == 1].Outcome.values
+        y_train = df[df.training == 1].Action.values
+        y_train = [tuple(l) for l in y_train]
         X_test = data[(df.training == 0).values]
 
         # load data about actionability of features
@@ -72,7 +73,7 @@ class SGENAlg:
             action_check = self.bb_model.predict(x_decoded)
 
             # sanity check -- if semifact outcome (why not Y) is already the most likely
-            if dataset.target_action != action_check:
+            if target_action != action_check:
                 continue
 
             # this while loop exists so that the initial population has at least one semifactual
@@ -93,7 +94,7 @@ class SGENAlg:
 
                 decoded_pop = np.stack(decoded_pop)
 
-                avg_preds = np.mean([self.bb_model.predict_multiple(decoded_pop.reshape(-1, *dataset.state_shape)) != dataset.target_action])
+                avg_preds = np.mean([self.bb_model.predict_multiple(decoded_pop.reshape(-1, *dataset.state_shape)) != target_action])
                 if counter_xxx == 100:
                     break
 
@@ -101,12 +102,12 @@ class SGENAlg:
                 continue
 
             # Start GA
-            for generation in range(MAX_GENERATIONS):
+            for generation in tqdm(range(MAX_GENERATIONS)):
                 # Evaluate fitness (meta = reachability, gain, robustness, diversity)
                 fitness_scores, meta_fitness = self.fitness(x, population, cat_idxs,
                                                             actionable_idxs, self.bb_model, action_meta,
                                                             continuous_features, categorical_features,
-                                                            enc, dataset, reach_knn)
+                                                            enc, dataset, reach_knn, target_action)
 
                 # Selection
                 population, elites = self.natural_selection(population, fitness_scores)
@@ -124,7 +125,7 @@ class SGENAlg:
                 fitness_scores, meta_fitness = self.fitness(x, population, cat_idxs,
                                                             actionable_idxs, self.bb_model, action_meta,
                                                             continuous_features, categorical_features,
-                                                            enc, dataset, reach_knn)
+                                                            enc, dataset, reach_knn, target_action)
 
             result = population[np.argmax(fitness_scores)]
 
@@ -136,7 +137,7 @@ class SGENAlg:
                     found_sfs.append([test_ids, True])
 
             else:
-                result, replaced_these_idxs = self.force_sf(result, x, enc, dataset)
+                result, replaced_these_idxs = self.force_sf(result, x, enc, dataset, target_action)
                 for idx, d in enumerate(result):
                     decoded_d = self.reorder_features(d, dataset, enc, len(dataset.continuous_feature_names))
                     sf_data.append(decoded_d.tolist())
@@ -168,7 +169,8 @@ class SGENAlg:
 
         return sf_df_readable
 
-    def fitness(self, x, population, cat_idxs, actionable_idxs, clf, action_meta, continuous_features, categorical_features, enc, dataset, reach_knn):
+    def fitness(self, x, population, cat_idxs, actionable_idxs, clf, action_meta,
+                continuous_features, categorical_features, enc, dataset, reach_knn, target_action):
 
         fitness_scores = list()
         meta_fitness = list()
@@ -179,7 +181,7 @@ class SGENAlg:
             gain = self.get_gain(x, solution)
             robustness_1 = self.get_robustness(x, solution, clf, cat_idxs,
                                             actionable_idxs, action_meta,
-                                            continuous_features, categorical_features, enc, dataset) * 1
+                                            continuous_features, categorical_features, enc, dataset, target_action) * 1
 
             decoded_solution = []
             for j, x in enumerate(solution):
@@ -189,7 +191,7 @@ class SGENAlg:
             decoded_solution = np.stack(decoded_solution)
             decoded_solution = decoded_solution.reshape(decoded_solution.shape[0], decoded_solution.shape[-1]) # middle dimension might be 1 removing this
 
-            robustness_2 = (clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape))[0] != dataset.target_action) * 1
+            robustness_2 = (clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape))[0] != target_action) * 1
             diversity = self.get_diversity(solution)
 
             term1 = np.array(reachability.flatten() * gain)
@@ -202,7 +204,7 @@ class SGENAlg:
 
             term1 = (term1 + robustness_1 + robustness_2).mean()
 
-            correctness = np.mean([clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape)) != dataset.target_action])  # hard constraint that the solution MUST contain SF
+            correctness = np.mean([clf.predict_multiple(decoded_solution.reshape(-1, *dataset.state_shape)) != target_action])  # hard constraint that the solution MUST contain SF
             fitness_scores.append((term1 + diversity).item() * correctness)
             meta_fitness.append([reachability.mean(), gain.mean(), robustness_1.mean(), robustness_2.mean(), diversity])
 
@@ -237,7 +239,7 @@ class SGENAlg:
         return scores
 
     def get_robustness(self, x, solution, clf, cat_idxs, actionable_idxs, action_meta, continuous_features,
-                       categorical_features, enc, dataset):
+                       categorical_features, enc, dataset, target_action):
         """
         Monte Carlo Approximation of e-neighborhood robustness
         """
@@ -259,7 +261,7 @@ class SGENAlg:
                 instance_perturbations.append(decoded_perturbed_instance.tolist())
 
 
-            predictions = clf.predict_multiple(decoded_perturbed_instance.reshape(-1, *dataset.state_shape)) != dataset.target_action
+            predictions = clf.predict_multiple(decoded_perturbed_instance.reshape(-1, *dataset.state_shape)) != target_action
             perturbation_preds.append(predictions)
         return np.array(perturbation_preds).mean()
 
@@ -412,7 +414,10 @@ class SGENAlg:
 
             # If you can generate new feature anywhere
             if action_meta[cat_name]['can_increase'] and action_meta[cat_name]['can_decrease']:
-                new = np.eye(len(original_rep))[np.random.choice(len(original_rep))]
+                try:
+                    new = np.eye(len(original_rep))[np.random.choice(len(original_rep))]
+                except:
+                    new = new_rep
 
             # if you can only increase
             elif action_meta[cat_name]['can_increase'] and not action_meta[cat_name]['can_decrease']:
@@ -630,11 +635,11 @@ class SGENAlg:
 
         return np.array(children)
 
-    def force_sf(self, result, x, enc, dataset):
+    def force_sf(self, result, x, enc, dataset, target_action):
         result = self.reorder_features(x, dataset, enc, len(dataset.continuous_feature_names))
         result_preds = self.bb_model.predict(enc.inverse_transform(result))
-        keep = np.where(result_preds != abs(dataset.target_action))[0]
-        replace_these_idxs = np.where(result_preds == dataset.target_action)[0]
+        keep = np.where(result_preds != abs(target_action))[0]
+        replace_these_idxs = np.where(result_preds == target_action)[0]
         for idx in replace_these_idxs:
             result[idx] = x  # just replace with initial sf for fairness of comparison to other methods
         return result, replace_these_idxs

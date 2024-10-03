@@ -1,3 +1,5 @@
+import copy
+
 import pandas as pd
 from tqdm import tqdm
 
@@ -42,14 +44,14 @@ class AbstractDataset:
 
     def collect_dataset(self, env, bb_model):
         dataset = []
-        n_ep = 100
+        n_ep = 10
         for i in tqdm(range(n_ep)):
             obs, _ = env.reset()
             done = False
             while not done:
                 action = bb_model.predict(obs)
 
-                input = list(obs) + [action]
+                input = list(copy.copy(obs)) + [action]
 
                 dataset.append(input)
 
