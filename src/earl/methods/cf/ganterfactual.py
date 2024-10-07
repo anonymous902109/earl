@@ -27,7 +27,7 @@ class GANterfactual(AbstractMethod):
         self.num_features = num_features
         self.training_timesteps = training_timesteps
         self.batch_size = batch_size
-        self.params = params
+        self.params = self.process_params(params)
         self.dataset_path = dataset_path
 
         # TODO: generator and discriminator architecture should be here too
@@ -37,6 +37,8 @@ class GANterfactual(AbstractMethod):
             self.domains = domains
 
         self.nb_domains = len(self.domains)
+
+        self.label_mapping = self.get_label_mapping()
 
         self.model_save_path = os.path.join('citibikes', 'trained_models', 'ganterfactual')
 
@@ -92,16 +94,19 @@ class GANterfactual(AbstractMethod):
 
     def explain(self, fact, target):
         ''' Returns all cfs found in the tree '''
-        tensor_fact = torch.tensor(fact, dtype=torch.double).unsqueeze(0)
-        cf = self.generate_counterfactual(tensor_fact, target, self.nb_domains)
+        tensor_fact = torch.tensor(fact.state, dtype=torch.double).unsqueeze(0)
+
+        target_label = self.label_mapping[target]
+
+        cf = self.generate_counterfactual(tensor_fact, target_label, self.nb_domains)
 
         cf = cf.squeeze().tolist()
 
         # rounding for categorical features
-        discrete_feature_ids = [i for i, c in enumerate(self.params.columns) if c in self.params.categorical_feature_names]
+        discrete_feature_ids = [i for i, c in enumerate(self.params.columns) if c in self.params.categorical_features]
         cf = [round(feature) if i in discrete_feature_ids else feature for i, feature in enumerate(cf)]
 
-        return cf
+        return [cf]
 
     def generate_counterfactual(self, fact, target, nb_domains):
         # convert target class to onehot
@@ -113,3 +118,12 @@ class GANterfactual(AbstractMethod):
         counterfactual = self.generator.double()(fact, onehot_target_class)
 
         return counterfactual
+
+    def get_label_mapping(self):
+        label_mapping = {}
+        i = 0
+        for d in self.domains:
+            label_mapping[d] = i
+            i += 1
+
+        return label_mapping

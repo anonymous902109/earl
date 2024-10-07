@@ -50,6 +50,6 @@ class ScfExplObj(AbstractObjective):
 
         return objectives, constraints, cfs
 
-    def get_first_state(self, fact, first_action_index):
-        return copy.copy(fact.get_state(first_action_index)), copy.deepcopy(fact.get_env_state(first_action_index))
+    def get_first_state(self, fact, first_action_index=0):
+        return copy.copy(fact.get_state(0)), copy.deepcopy(fact.get_env_state(0))
 

@@ -44,7 +44,7 @@ class AbstractDataset:
 
     def collect_dataset(self, env, bb_model):
         dataset = []
-        n_ep = 10
+        n_ep = 100
         for i in tqdm(range(n_ep)):
             obs, _ = env.reset()
             done = False

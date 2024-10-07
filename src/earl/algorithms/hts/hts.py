@@ -3,20 +3,20 @@ import copy
 import numpy as np
 import math
 
-from src.earl.algorithms.hts.util import TreeNode
+from src.earl.algorithms.hts.util.hts_tree_node import TreeNode
 
 
 class HTSAlgorithm:
 
-    def __init__(self, env, bb_model, obj, params):
+    def __init__(self, env, bb_model, obj, n_expand=20, max_level=10, n_iter=100, c=0.7):
         self.env = env
         self.bb_model = bb_model
         self.obj = obj
 
-        self.n_expand = params['ts_n_expand']
-        self.max_level = params['max_level']
-        self.n_iter = params['ts_n_iter']
-        self.c = params['c']
+        self.n_expand = n_expand
+        self.max_level = max_level
+        self.n_iter = n_iter
+        self.c = c
 
         self.tree_size = 0
 

@@ -80,6 +80,8 @@ def get_facts(env, bb_model, horizon=10, perc=0.1, n_states=100):
 
                 rl_facts.append(rl_fact)
                 sl_facts.append(sl_fact)
+                prev_states = []
+                actions = []
 
             actions.append(action)
             prev_states.append(env.get_state())
@@ -122,7 +124,7 @@ def if_include(thresholds, bb_model, action, obs, common_actions):
 def get_common_actions(env, bb_model):
     print('Calculating common actions...')
     n_ep = 1000
-    threshold = 100
+    threshold = 1000
 
     common_actions = {(i, j, n): 0 for i in range(0, 5) for j in range(0, 5) for n in range(0, 10)}
 

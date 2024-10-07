@@ -21,7 +21,7 @@ class CfExplObj(AbstractObjective):
 
     def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
-        valid_outcome = self.bb_model.predict(obs) == target_action
+        valid_outcome = tuple(self.bb_model.predict(obs)) == target_action
         # IMPORTANT: return 1 if the class has not changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 

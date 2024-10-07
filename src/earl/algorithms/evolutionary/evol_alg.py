@@ -61,7 +61,7 @@ class EvolutionaryAlg:
                  algorithm,
                  ('n_gen', self.n_gen),
                  seed=self.seed,
-                 verbose=1)
+                 verbose=0)
 
         cfs = cf_problem.cfs
 

@@ -49,6 +49,6 @@ class SpfExplObj(AbstractObjective):
 
         return objectives, constraints, cfs
 
-    def get_first_state(self, fact, first_action_index):
-        return copy.deepcopy(fact.forward_state), copy.deepcopy(fact.forward_env_state)
+    def get_first_state(self, fact, first_action_index=0):
+        return copy.deepcopy(fact.state), copy.deepcopy(fact.get_env_state(-1))
 

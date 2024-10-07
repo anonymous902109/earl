@@ -69,7 +69,7 @@ class AbstractObjective:
     def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
         # valid_outcome = outcome.sf_outcome(obs)
-        valid_outcome = self.bb_model.predict(obs) == target_action
+        valid_outcome = tuple(self.bb_model.predict(obs)) == target_action
         # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 
@@ -130,8 +130,9 @@ class AbstractObjective:
             done = False
             early_break = False
 
-            # obs = copy.copy(first_state)
-            obs = self.env.state
+            first_state, first_env_state = self.get_first_state(fact)
+
+            obs = copy.copy(first_state)
 
             for a in actions:
                 if done:

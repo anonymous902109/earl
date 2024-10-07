@@ -6,13 +6,13 @@ from src.earl.objectives.cf.pf_expl_obj import PfExplObj
 
 class RACCERHTS(ExplAlgAbstract):
 
-    def __init__(self, env, bb_model, params={}):
-        self.obj = PfExplObj(env, bb_model, params)
-        self.alg = HTSAlgorithm(env, bb_model, self.obj, params)
+    def __init__(self, env, bb_model, horizon, n_expand=20, max_level=10, n_iter=100, c=0.7):
+        self.obj = PfExplObj(env, bb_model, horizon=horizon)
+        self.alg = HTSAlgorithm(env, bb_model, self.obj, n_expand, max_level, n_iter, c)
 
         self.objectives = ['fidelity', 'reachability', 'stochastic_validity']
 
-    def get_best_cf(self, fact, target):
+    def explain(self, fact, target):
         ''' Returns all cfs found in the tree '''
         res = self.alg.search(init_state=fact.states[-1], fact=fact)
         cfs = []
@@ -28,4 +28,4 @@ class RACCERHTS(ExplAlgAbstract):
         if best_cf is None:
             return []
 
-        return [best_cf]
+        return [best_cf.cf]
