@@ -8,7 +8,6 @@ __pycache__/
 data/
 citibikes/datasets/
 citibikes/trained_models/
-facts/
 
 # C extensions
 *.so
