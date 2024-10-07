@@ -32,7 +32,7 @@ def main():
               f'--continuous_features={env.continuous_features}']
 
     horizon = 10
-    sl_facts, rl_facts = get_facts(env, bb_model, horizon=horizon, perc=0.1, n_states=100)
+    sl_facts, rl_facts = get_facts(env, bb_model, horizon=horizon, perc=0.1, n_states=50)
 
     domains = list({tuple(bb_model.predict(f.state)) for f in sl_facts}.union({tuple(f.target_action) for f in sl_facts}))
 
@@ -69,14 +69,14 @@ def main():
 
     # evaluate_explanations(env, 'citibikes/results/', sl_eval_paths, N_TEST=10)
 
-    SGRL_Advance = SGRLAdvance(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
-    SGRL_Rewind = SGRLRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
+    # SGRL_Advance = SGRLAdvance(env, bb_model, horizon=horizon, n_gen=24, pop_size=100, xl=[0, 0, 0], xu=[4, 4, 9])
+    # SGRL_Rewind = SGRLRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=100, xl=[0, 0, 0], xu=[4, 4, 9])
     RACCER_HTS = RACCERHTS(env, bb_model, horizon, n_expand=20, max_level=5, n_iter=300)
     RACCER_Advance = NSGARaccerAdvance(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
     RACCER_Rewind = NSGARaccerRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
 
-    rl_methods = [SGRL_Advance, SGRL_Rewind, RACCER_Advance, RACCER_Rewind, RACCER_HTS]
-    rl_eval_paths = ['sgrl_advance', 'sgrl_rewind', 'raccer_advance', 'raccer_rewind', 'raccer_hts']
+    rl_methods = [RACCER_Advance, RACCER_Rewind, RACCER_HTS]
+    rl_eval_paths = ['raccer_advance', 'raccer_rewind', 'raccer_hts']
 
     for i, m in enumerate(rl_methods):
         record = []
@@ -87,6 +87,7 @@ def main():
             cfs = m.explain(f, target=f.target_action)
             end = time.time()
             if len(cfs):
+                print('Generated {} cfs'.format(len(cfs)))
                 for cf in cfs:
                     record.append((list(f.state), list(cf.cf), end-start))
 

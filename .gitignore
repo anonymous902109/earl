@@ -5,9 +5,7 @@ __pycache__/
 
 .idea/
 
-data/
-citibikes/datasets/
-citibikes/trained_models/
+
 
 # C extensions
 *.so

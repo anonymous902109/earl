@@ -21,8 +21,8 @@ class PfExplObj(CfExplObj):
     def evaluate(self, fact, actions):
         return self._evaluate(fact, actions, allow_first_noop=False)
 
-    def get_first_state(self, fact, first_action_index):
-        return copy.deepcopy(fact.forward_state), copy.deepcopy(fact.forward_env_state)
+    def get_first_state(self, fact):
+        return copy.deepcopy(fact.prev_states[-1]), copy.deepcopy(fact.get_env_state(-1))
 
 
 
