@@ -145,13 +145,12 @@ class CitiBikes(AbstractEnv):
         pass
 
     def get_actions(self, x=None):
-        if x is None:
-            actions = [(i, j, k)
-                       for i in range(self.action_space[0].n)
-                       for j in range(self.action_space[1].n)
-                       for k in range(self.action_space[2].n)]
+        actions = [(i, j, k)
+                   for i in range(self.action_space[0].n)
+                   for j in range(self.action_space[1].n)
+                   for k in range(self.action_space[2].n)]
 
-            return actions
+        return actions
 
     def set_nonstoch_state(self, state, env_state=None):
         state_dict = {station_id: {} for station_id in range(self.num_stations)}

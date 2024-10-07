@@ -75,8 +75,8 @@ def get_facts(env, bb_model, horizon=10, perc=0.1, n_states=100):
             include, target_action = if_include(thresholds, bb_model, action, obs, common_actions)
 
             if include and len(prev_states) >= horizon and tuple(action) in common_actions:
-                sl_fact = SLFact(obs, action, target_action)
-                rl_fact = RLFact(obs, action, prev_states, env_states=[], actions=actions, horizon=horizon, target_action=target_action)
+                sl_fact = SLFact(obs, action, action)
+                rl_fact = RLFact(obs, action, prev_states, env_states=[], actions=actions, horizon=horizon, target_action=action)
 
                 rl_facts.append(rl_fact)
                 sl_facts.append(sl_fact)
@@ -123,8 +123,8 @@ def if_include(thresholds, bb_model, action, obs, common_actions):
 
 def get_common_actions(env, bb_model):
     print('Calculating common actions...')
-    n_ep = 1000
-    threshold = 1000
+    n_ep = 100
+    threshold = 100
 
     common_actions = {(i, j, n): 0 for i in range(0, 5) for j in range(0, 5) for n in range(0, 10)}
 

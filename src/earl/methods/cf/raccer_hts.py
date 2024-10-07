@@ -14,7 +14,7 @@ class RACCERHTS(ExplAlgAbstract):
 
     def explain(self, fact, target):
         ''' Returns all cfs found in the tree '''
-        res = self.alg.search(init_state=fact.states[-1], fact=fact)
+        res = self.alg.search(init_state=fact.prev_states[-1], fact=fact)
         cfs = []
 
         best_cf = None
@@ -28,4 +28,4 @@ class RACCERHTS(ExplAlgAbstract):
         if best_cf is None:
             return []
 
-        return [best_cf.cf]
+        return [best_cf]

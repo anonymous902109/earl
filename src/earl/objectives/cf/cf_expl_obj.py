@@ -21,7 +21,7 @@ class CfExplObj(AbstractObjective):
 
     def validity(self, target_action, obs):
         ''' Evaluates validity based on the outcome '''
-        valid_outcome = tuple(self.bb_model.predict(obs)) == target_action
+        valid_outcome = tuple(self.bb_model.predict(obs)) != target_action # For now -- valid if the action is different from the original action
         # IMPORTANT: return 1 if the class has not changed -- to be compatible with minimization used by NSGA
         return not valid_outcome
 
@@ -30,7 +30,7 @@ class CfExplObj(AbstractObjective):
 
     def _evaluate(self, fact, actions, allow_first_noop=False):
         actions, first_action_index = self.process_actions(actions, allow_first_noop=allow_first_noop)
-        first_state, first_env_state = self.get_first_state(fact, first_action_index)
+        first_state, first_env_state = self.get_first_state(fact)
 
         if len(actions) == 0:
             return {'uncertainty': 1,

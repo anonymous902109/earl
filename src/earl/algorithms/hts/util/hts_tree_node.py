@@ -29,16 +29,16 @@ class TreeNode:
 
         self.level = self.parent.level + 1 if self.parent is not None else 0
 
-        if valid is not None:
-            self.valid_outcome = valid
-        else:
-            self.valid_outcome = self.fact.outcome.cf_outcome(self.state)
+        # if valid is not None:
+        #     self.valid_outcome = valid
+        # else:
+        #     self.valid_outcome = self.fact.outcome.cf_outcome(self.state)
 
     def available_actions(self):
         return self.env.get_actions(self.state)
 
     def is_terminal(self):
-        return self.env.check_done(self.state) or self.valid_outcome
+        return self.env.check_done(self.state) or (self.bb_model.predict(self.state) != self.bb_model.predict(self.fact.state))
 
     def take_action(self, action, n_expand, expand=True):
         nns = []
