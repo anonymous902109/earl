@@ -8,13 +8,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 def evaluate_explanations(env, eval_path, method_names, N_TEST):
     print('==================== Evaluating explanations ====================\n')
-    evaluate_coverage(env, eval_path, method_names, N_TEST)
+    # evaluate_coverage(env, eval_path, method_names, N_TEST)
     evaluate_gen_time(env, eval_path, method_names)
-    evaluate_properties(env, eval_path,method_names)
+    evaluate_feature_similarity(env, eval_path,method_names)
     evaluate_plausibility(env, eval_path, method_names)
-    evaluate_diversity(env, eval_path, method_names)
+    # evaluate_diversity(env, eval_path, method_names)
 
-def evaluate_coverage(env, params, eval_path, scenario, method_names, N_TEST):
+def evaluate_coverage(env, eval_path, method_names, N_TEST):
     print('----------------- Evaluating coverage -----------------\n')
     printout = '{: ^20}'.format('Algorithm') + '|' + \
                '{: ^20}'.format('Coverage (%)') + '|' + '\n'
@@ -47,6 +47,38 @@ def evaluate_gen_time(env, eval_path, method_names):
 
     print(printout + '\n')
 
+def evaluate_feature_similarity(env, eval_path, method_names):
+    print('----------------- Evaluating feature-similarity metrics -----------------\n')
+    printout = '{: ^20}'.format('Algorithm') + '|' + \
+               '{: ^20}'.format('Proximity') + '|' + \
+               '{: ^20}'.format('Sparsity') + '|'  + '\n'
+
+    for method_name in method_names:
+        df_path = os.path.join(eval_path, '{}.csv'.format(method_name))
+        df = pd.read_csv(df_path, header=0)
+
+        df['proximity'] = df.apply(lambda row: proximity(ast.literal_eval(row['fact']), ast.literal_eval(row['explanation'])), axis=1)
+        df['proximity'] = df['proximity'] / max(df['proximity'])
+        df['proximity'] = 1 - df['proximity']
+        df['sparsity'] = df.apply(lambda row: sparsity(ast.literal_eval(row['fact']), ast.literal_eval(row['explanation'])), axis=1)
+
+        printout += '{: ^20}'.format(method_name) + '|' + \
+                    '{: ^20.4}'.format(np.mean(df['proximity'] / max(df['proximity']))) + '|' + \
+                    '{: ^20.4}'.format(np.mean(df['sparsity'])) + '|' +'\n'
+
+    print(printout)
+
+def proximity(x, y):
+    # MAXIMIZE
+    x = np.array(x)
+    y = np.array(y)
+    return np.linalg.norm((x - y), ord=1)
+
+def sparsity(x, y):
+    # MINIMIZE
+    return sum(np.array(x) != np.array(y)) / len(x)*1.0
+
+
 def evaluate_properties(env, params, eval_path, scenario, method_names):
     print('----------------- Evaluating properties -----------------\n')
     print_header = True
@@ -77,7 +109,7 @@ def evaluate_properties(env, params, eval_path, scenario, method_names):
 
     print(printout)
 
-def evaluate_plausibility(env, params, eval_path, scenario, method_names):
+def evaluate_plausibility(env, eval_path, method_names):
     print('----------------- Evaluating plausibility -----------------\n')
     printout = '{: ^20}'.format('Algorithm') + '|' + \
                '{: ^20}'.format('Plausible explanations (%)') + '|' + '\n'
@@ -87,7 +119,7 @@ def evaluate_plausibility(env, params, eval_path, scenario, method_names):
         df_path = os.path.join(eval_path, '{}.csv'.format(method_name))
         df = pd.read_csv(df_path, header=0)
         if len(df) > 0:
-            df['plausible'] = df.apply(lambda x: env.realistic(ast.literal_eval(x['Explanation'])), axis=1)
+            df['plausible'] = df.apply(lambda x: env.realistic(ast.literal_eval(x['explanation'])), axis=1)
             satisfied = sum(df['plausible'])
             total = len(df)
 
