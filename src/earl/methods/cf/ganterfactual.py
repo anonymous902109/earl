@@ -36,6 +36,8 @@ class GANterfactual(AbstractMethod):
         else:
             self.domains = domains
 
+        print('GANterfactual domains = {}'.format(self.domains))
+
         self.nb_domains = len(self.domains)
 
         self.label_mapping = self.get_label_mapping()

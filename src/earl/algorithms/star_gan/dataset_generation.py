@@ -269,6 +269,6 @@ def generate_dataset_gan(agent, env, dataset_path, nb_samples, nb_domains, domai
 
     under_sample(dataset_path, min_size=nb_samples / nb_domains, domains=domains)
     create_unique_dataset(dataset_path, dataset_path, domains)
-    # under_sample(dataset_path, domains)
+    under_sample(dataset_path, domains)
     split_dataset(dataset_path, 0.1, domains)
 

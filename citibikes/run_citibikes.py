@@ -39,28 +39,28 @@ def main():
     rl_methods = [RACCER_Advance, RACCER_Rewind, RACCER_HTS]
     rl_eval_paths = ['raccer_advance', 'raccer_rewind', 'raccer_hts']
 
-    for i, m in enumerate(rl_methods):
-        record = []
-        print('Running {}'.format(rl_eval_paths[i]))
-
-        for f in tqdm(rl_facts):
-            start = time.time()
-            cfs = m.explain(f, target=f.target_action)
-            end = time.time()
-            if len(cfs):
-                print('Generated {} cfs'.format(len(cfs)))
-                for cf in cfs:
-                    record.append((list(f.state), list(cf.cf), end-start))
-
-        record_df = pd.DataFrame(record, columns=['fact', 'explanation', 'gen_time'])
-        record_df.to_csv('citibikes/results/{}.csv'.format(rl_eval_paths[i]), index=False)
+    # for i, m in enumerate(rl_methods):
+    #     record = []
+    #     print('Running {}'.format(rl_eval_paths[i]))
+    #
+    #     for f in tqdm(rl_facts):
+    #         start = time.time()
+    #         cfs = m.explain(f, target=f.target_action)
+    #         end = time.time()
+    #         if len(cfs):
+    #             print('Generated {} cfs'.format(len(cfs)))
+    #             for cf in cfs:
+    #                 record.append((list(f.state), list(cf.cf), end-start))
+    #
+    #     record_df = pd.DataFrame(record, columns=['fact', 'explanation', 'gen_time'])
+    #     record_df.to_csv('citibikes/results/{}.csv'.format(rl_eval_paths[i]), index=False)
 
     ganterfactual = GANterfactual(env,
                                   bb_model,
                                   batch_size=64,
                                   num_features=38,
                                   domains=domains,
-                                  training_timesteps=4500,
+                                  training_timesteps=3000,
                                   dataset_size=5e5,
                                   dataset_path='citibikes/datasets/ganterfactual_data',
                                   params=params)

@@ -60,7 +60,7 @@ def get_facts(env, bb_model, horizon=10, perc=0.1, n_states=100):
     sl_facts = []
     rl_facts = []
 
-    n_ep = 100
+    n_ep = 1000
 
     print('Collecting facts...')
     for i in tqdm(range(n_ep)):
@@ -123,8 +123,8 @@ def if_include(thresholds, bb_model, action, obs, common_actions):
 
 def get_common_actions(env, bb_model):
     print('Calculating common actions...')
-    n_ep = 100
-    threshold = 100
+    n_ep = 1000
+    threshold = 1000
 
     common_actions = {(i, j, n): 0 for i in range(0, 5) for j in range(0, 5) for n in range(0, 10)}
 
