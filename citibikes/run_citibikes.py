@@ -61,7 +61,7 @@ def main():
                                   batch_size=64,
                                   num_features=38,
                                   domains=domains,
-                                  training_timesteps=900,
+                                  training_timesteps=1500,
                                   dataset_size=5e5,
                                   dataset_path='citibikes/datasets/ganterfactual_data',
                                   params=params)
