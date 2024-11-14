@@ -7,8 +7,7 @@ from src.earl.objectives.sf.spf_expl_obj import SpfExplObj
 
 class SGRLAdvance(AbstractMethod):
 
-    def __init__(self, env, bb_model,
-                 horizon=5, n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
+    def __init__(self, env, bb_model, horizon=5, n_sim=10, xu=0, xl=10, n_gen=10, pop_size=100):
         self.env = env
         self.bb_model = bb_model
         self.n_sim = n_sim

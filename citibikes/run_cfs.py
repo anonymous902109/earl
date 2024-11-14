@@ -18,7 +18,6 @@ from src.earl.utils.util import seed_everything
 
 
 def main():
-    # ----------- user-defined ------------
     seed_everything(0)
     env = CitiBikes()
 
@@ -35,7 +34,7 @@ def main():
 
     RACCER_HTS = RACCERHTS(env, bb_model, horizon, n_expand=20, max_level=horizon, n_iter=300)
     RACCER_Advance = NSGARaccerAdvance(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
-    RACCER_Rewind = NSGARaccerRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=50, xl=[0, 0, 0], xu=[4, 4, 9])
+    RACCER_Rewind = NSGARaccerRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
 
     rl_methods = [RACCER_Advance, RACCER_Rewind, RACCER_HTS]
     rl_eval_paths = ['raccer_advance', 'raccer_rewind', 'raccer_hts']

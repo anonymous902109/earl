@@ -123,8 +123,8 @@ def if_include(thresholds, bb_model, action, obs, common_actions):
 
 def get_common_actions(env, bb_model):
     print('Calculating common actions...')
-    n_ep = 100
-    threshold = 100
+    n_ep = 1000
+    threshold = 1000
 
     common_actions = {(i, j, n): 0 for i in range(0, 5) for j in range(0, 5) for n in range(0, 10)}
 
@@ -142,4 +142,5 @@ def get_common_actions(env, bb_model):
 
     common_actions = {action: freq for action, freq in common_actions.items() if freq >= threshold}
 
+    print('Common actions = {}'.format(common_actions.keys()))
     return list(common_actions.keys())

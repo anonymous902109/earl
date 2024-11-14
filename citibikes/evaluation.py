@@ -10,9 +10,9 @@ def evaluate_explanations(env, eval_path, method_names, N_TEST):
     print('==================== Evaluating explanations ====================\n')
     # evaluate_coverage(env, eval_path, method_names, N_TEST)
     evaluate_gen_time(env, eval_path, method_names)
-    evaluate_feature_similarity(env, eval_path,method_names)
+    evaluate_feature_similarity(env, eval_path, method_names)
     evaluate_plausibility(env, eval_path, method_names)
-    # evaluate_diversity(env, eval_path, method_names)
+    evaluate_diversity(env, eval_path, method_names)
 
 def evaluate_coverage(env, eval_path, method_names, N_TEST):
     print('----------------- Evaluating coverage -----------------\n')

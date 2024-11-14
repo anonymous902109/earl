@@ -167,9 +167,11 @@ class CitiBikes(AbstractEnv):
                 setattr(self.gym_env.current_frame.stations[s_id], var_name, var_val)
 
         for s_id in range(self.num_stations):
-            shared_info = state[-len(self.shared_features):]
+            shared_info = state[-(len(self.shared_features) + 1):-1]
             for i, var_val in enumerate(shared_info):
                 setattr(self.gym_env.current_frame.stations[s_id], self.shared_features[i], var_val)
+
+        # self.gym_env.tick = state[-1]
 
         self.state = self.generate_obs(None)
 
