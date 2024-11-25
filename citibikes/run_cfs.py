@@ -33,34 +33,39 @@ def main():
     domains = list({tuple(bb_model.predict(f.state)) for f in sl_facts}.union({tuple(f.target_action) for f in sl_facts}))
 
     RACCER_HTS = RACCERHTS(env, bb_model, horizon, n_expand=20, max_level=horizon, n_iter=300)
-    RACCER_Advance = NSGARaccerAdvance(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
-    RACCER_Rewind = NSGARaccerRewind(env, bb_model, horizon=horizon, n_gen=24, pop_size=25, xl=[0, 0, 0], xu=[4, 4, 9])
+    RACCER_Advance = NSGARaccerAdvance(env, bb_model, horizon=horizon, n_gen=25, pop_size=24, xl=[0, 0, 0], xu=[4, 4, 9])
+    RACCER_Rewind = NSGARaccerRewind(env, bb_model, horizon=horizon, n_gen=25, pop_size=24, xl=[0, 0, 0], xu=[4, 4, 9])
 
     rl_methods = [RACCER_Advance, RACCER_Rewind, RACCER_HTS]
     rl_eval_paths = ['raccer_advance', 'raccer_rewind', 'raccer_hts']
 
-    for i, m in enumerate(rl_methods):
-        record = []
-        print('Running {}'.format(rl_eval_paths[i]))
+    # for i, m in enumerate(rl_methods):
+    #     record = []
+    #     print('Running {}'.format(rl_eval_paths[i]))
+    #
+    #     for f in tqdm(rl_facts):
+    #         start = time.time()
+    #         cfs = m.explain(f, target=f.target_action)
+    #         end = time.time()
+    #         if len(cfs):
+    #             print('Generated {} cfs'.format(len(cfs)))
+    #             for cf in cfs:
+    #                 record.append((list(f.state),
+    #                                list(cf.cf),
+    #                                cf.reward_dict['reachability'],
+    #                                cf.reward_dict['fidelity'],
+    #                                cf.reward_dict['uncertainty'],
+    #                                end-start))
 
-        for f in tqdm(rl_facts):
-            start = time.time()
-            cfs = m.explain(f, target=f.target_action)
-            end = time.time()
-            if len(cfs):
-                print('Generated {} cfs'.format(len(cfs)))
-                for cf in cfs:
-                    record.append((list(f.state), list(cf.cf), end-start))
-
-        record_df = pd.DataFrame(record, columns=['fact', 'explanation', 'gen_time'])
-        record_df.to_csv('citibikes/results/{}.csv'.format(rl_eval_paths[i]), index=False)
+        # record_df = pd.DataFrame(record, columns=['fact', 'explanation', 'reachability', 'fidelity', 'uncertainty', 'gen_time'])
+        # record_df.to_csv('citibikes/results/{}.csv'.format(rl_eval_paths[i]), index=False)
 
     ganterfactual = GANterfactual(env,
                                   bb_model,
                                   batch_size=64,
-                                  num_features=38,
+                                  num_features=37,
                                   domains=domains,
-                                  training_timesteps=1500,
+                                  training_timesteps=3000,
                                   dataset_size=5e5,
                                   dataset_path='citibikes/datasets/ganterfactual_data',
                                   params=params)
@@ -86,6 +91,7 @@ def main():
         record_df.to_csv('citibikes/results/{}.csv'.format(sl_eval_paths[i]), index=False)
 
     evaluate_explanations(env, 'citibikes/results/', sl_eval_paths + rl_eval_paths, N_TEST=100)
+
 
 if __name__ == '__main__':
     main()

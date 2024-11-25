@@ -88,7 +88,7 @@ class PPOModel:
         for i, action_component in enumerate(distribution):
             prob += action_component.probs.squeeze()[a[i]]
 
-        return prob.item()
+        return prob.item() / 3
 
     def get_importance(self, x):
         if not isinstance(x, torch.Tensor):

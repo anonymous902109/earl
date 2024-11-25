@@ -17,20 +17,18 @@ class CitiBikes(AbstractEnv):
 
         self.features = ["bikes", "capacity", "fulfillment", "shortage", "failed_return", "trip_requirement",
                          "decision_type", "decision_station_idx", "frame_idx",
-                         "holiday", "temperature", "weather", "weekday", "tick"]
+                         "holiday", "temperature", "weather", "weekday"]
 
         self.station_features = self.features[0:6]
         self.decision_features = self.features[6:9]
         self.shared_features = self.features[9:13]
-        self.tick = self.features[13:]
 
         self.num_stations = len(self.gym_env.current_frame.stations)
         self.max_bike_transfer = 10
 
         self.state_dim = self.num_stations * len(self.station_features) + \
                          len(self.decision_features) + \
-                         len(self.shared_features) + \
-                         len(self.tick)
+                         len(self.shared_features)
 
         self.action_space = MultiDiscrete([self.num_stations, self.num_stations, self.max_bike_transfer])
         self.observation_space = Box(low=-np.inf,
@@ -49,8 +47,7 @@ class CitiBikes(AbstractEnv):
 
         self.state_feature_names = ['decision_type', 'decision_event_station_idx', 'frame_index'] + \
                                    ['{}_{}'.format(sf, i) for sf in self.station_features for i in range(self.num_stations)] +\
-                                   self.shared_features + \
-                                   ['tick']
+                                   self.shared_features
 
         self.categorical_features = self.state_feature_names
         self.continuous_features = []
@@ -134,8 +131,6 @@ class CitiBikes(AbstractEnv):
         for f in self.shared_features:  # tick cannot be added this way
             obs.append(getattr(stations[0], f))
 
-        obs.append(self.gym_env.tick)
-
         return obs
 
     def render(self):
@@ -167,11 +162,9 @@ class CitiBikes(AbstractEnv):
                 setattr(self.gym_env.current_frame.stations[s_id], var_name, var_val)
 
         for s_id in range(self.num_stations):
-            shared_info = state[-(len(self.shared_features) + 1):-1]
+            shared_info = state[-len(self.shared_features):]
             for i, var_val in enumerate(shared_info):
                 setattr(self.gym_env.current_frame.stations[s_id], self.shared_features[i], var_val)
-
-        # self.gym_env.tick = state[-1]
 
         self.state = self.generate_obs(None)
 

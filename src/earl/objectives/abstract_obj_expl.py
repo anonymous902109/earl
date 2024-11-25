@@ -71,6 +71,7 @@ class AbstractObjective:
         # valid_outcome = outcome.sf_outcome(obs)
         valid_outcome = tuple(self.bb_model.predict(obs)) == target_action
         # IMPORTANT: return 1 if the class has changed -- to be compatible with minimization used by NSGA
+
         return not valid_outcome
 
     def recency(self, fact, actions):

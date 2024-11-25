@@ -102,7 +102,7 @@ class SGENAlg:
                 continue
 
             # Start GA
-            for generation in tqdm(range(MAX_GENERATIONS)):
+            for generation in range(MAX_GENERATIONS):
                 # Evaluate fitness (meta = reachability, gain, robustness, diversity)
                 fitness_scores, meta_fitness = self.fitness(x, population, cat_idxs,
                                                             actionable_idxs, self.bb_model, action_meta,
