@@ -177,7 +177,7 @@ def evaluate_feature_diversity(df):
 def mse(x, y):
     return np.sqrt(sum(np.square(x - y)))
 
-def transform_baseline_results(facts, objs, baseline_names, eval_path):
+def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
     ''' Finds the shortest path between the original instance and the counterfactual '''
      # for each baseline method
     for m_i, baseline_n in enumerate(baseline_names):
@@ -191,17 +191,18 @@ def transform_baseline_results(facts, objs, baseline_names, eval_path):
             cf = row['explanation']
 
             solutions = []
-            for o in objs:
-                solutions += find_recourse(f, cf, o, {'gen_alg':
-                                                          {'xu': [5, 5, 10],
-                                                           'xl': [0, 0, 0],
-                                                           'horizon': 5}})
+            if env.realistic(cf):
+                for o in objs:
+                    solutions += find_recourse(f, cf, o, {'gen_alg':
+                                                              {'xu': [4, 4, 9]*5,
+                                                               'xl': [0, 0, 0]*5,
+                                                               'horizon': 5}})
 
             # no cfs found in the neighborhood
             if len(solutions) == 0:
                 data = append_data(data,
                                    fact_id,
-                                   list(f.forward_state),
+                                   list(f.state),
                                    cf,
                                    None,
                                    [1 for i in objs[0].objectives + objs[0].constraints],
@@ -215,7 +216,7 @@ def transform_baseline_results(facts, objs, baseline_names, eval_path):
                 # write down results
                 data = append_data(data,
                                    fact_id,
-                                   list(f.forward_state),
+                                   list(f.state),
                                    cf,
                                    random_res.X,
                                    random_res.F + random_res.G,
@@ -228,4 +229,4 @@ def transform_baseline_results(facts, objs, baseline_names, eval_path):
 
         df = pd.DataFrame(data, columns=columns)
 
-        df.to_csv(baseline_n, index=False)
+        df.to_csv(baseline_path, index=False)

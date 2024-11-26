@@ -13,6 +13,7 @@ from pymoo.optimize import minimize
 from pymoo.problems.functional import FunctionalProblem
 from tqdm import tqdm
 
+from src.earl.algorithms.evolutionary.MOOProblem import MOOProblem
 from src.earl.outcomes.exact_state_outcome import ExactStateOutcome
 
 
@@ -116,12 +117,7 @@ def find_recourse(f, cf, obj, params):
         lambda x: 1 - outcome.equal_states(x)  # 0 = satisfied constraint
     ]
 
-    problem = FunctionalProblem(params['gen_alg']['horizon'],
-                                objs,
-                                constr_ieq=constr,
-                                xl=params['gen_alg']['xl'],
-                                xu=params['gen_alg']['xu']
-                                )
+    problem = MOOProblem(15, len(obj.objectives), len(obj.constraints), [0,0,0], [4,4,9], f, obj)
 
     algorithm = NSGA2(pop_size=25,
                       sampling=IntegerRandomSampling(),

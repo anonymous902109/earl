@@ -38,7 +38,7 @@ def main():
     sl_facts, rl_facts = get_facts(env, bb_model, horizon=horizon, perc=0.1, n_states=TEST_N)
 
     SGRL_Advance = SGRLAdvance(env, bb_model, horizon=horizon, n_gen=N_GEN, pop_size=POP_SIZE, xl=[0 ,0,0], xu=[4, 4, 9])
-    SGRL_Rewind = SGRLRewind(env, bb_model, horizon=horizon, n_gen=N_GEN, pop_size=POP_SIZE, xl=[0 ,0,0], xu=[4, 4, 9])
+    SGRL_Rewind = SGRLRewind(env, bb_model, horizon=horizon, n_gen=N_GEN, pop_size=POP_SIZE, xl=[0, 0,0], xu=[4, 4, 9])
 
     rl_methods = [SGRL_Advance, SGRL_Rewind]
     rl_eval_paths = ['sgrl_advance', 'sgrl_rewind']
