@@ -22,15 +22,15 @@ def main():
                         verbose=1)
 
     horizon = 5
-    # sl_facts, rl_facts = get_facts(env, bb_model, horizon=horizon, perc=0.1, n_states=100)
+    sl_facts, rl_facts = get_facts(env, bb_model, horizon=horizon, perc=0.1, n_states=100)
     sf_rl_eval_paths = ['sgrl_advance', 'sgrl_rewind']
-    sf_sl_eval_paths = ['s_gen_1', 's_gen_3', 's_gen_5']
+    sf_sl_eval_paths = ['s_gen_5.csv']
     eval_path = 'citibikes/results/'
 
     SGRL_Advance = SGRLAdvance(env, bb_model, horizon=5, n_gen=25, pop_size=24, xl=[0, 0, 0], xu=[4, 4, 9])
     SGRL_Rewind = SGRLRewind(env, bb_model, horizon=5, n_gen=25, pop_size=24, xl=[0, 0, 0], xu=[4, 4, 9])
 
-    transform_baseline_results(env, sl_facts, [SGRL_Advance.obj, SGRL_Rewind.obj], sf_sl_eval_paths, eval_path)
+    transform_baseline_results(env, rl_facts, [SGRL_Advance.obj, SGRL_Rewind.obj], sf_sl_eval_paths, eval_path)
     evaluate_explanations(env, 'citibikes/results/', sf_rl_eval_paths + sf_sl_eval_paths, N_TEST=100)
 
     cf_rl_eval_paths = ['raccer_advance', 'raccer_rewind']

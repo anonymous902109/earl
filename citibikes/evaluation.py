@@ -1,16 +1,21 @@
 import ast
 import os
-from random import random
+import random
 
 import numpy as np
 import pandas as pd
 from pymoo.algorithms.moo.nsga2 import NSGA2
+from pymoo.operators.crossover.sbx import SBX
+from pymoo.operators.mutation.pm import PM
+from pymoo.operators.repair.rounding import RoundingRepair
+from pymoo.operators.sampling.rnd import IntegerRandomSampling
 from pymoo.optimize import minimize
 from pymoo.problems.functional import FunctionalProblem
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 
 from src.earl.evaluation.transformation import append_data, find_recourse
+from src.earl.outcomes.exact_state_outcome import ExactStateOutcome
 
 
 def evaluate_explanations(env, eval_path, method_names, N_TEST):
@@ -49,7 +54,7 @@ def evaluate_gen_time(env, eval_path, method_names):
         df_path = os.path.join(eval_path, '{}.csv'.format(method_name))
         df = pd.read_csv(df_path, header=0)
 
-        times = list(df['gen_time'].values.squeeze())
+        times = list(df['gen time'].values.squeeze())
 
         printout += '{: ^20}'.format(method_name) + '|' + '{: ^20.4}'.format(np.mean(times)) + '|' + '\n'
 
@@ -177,6 +182,7 @@ def evaluate_feature_diversity(df):
 def mse(x, y):
     return np.sqrt(sum(np.square(x - y)))
 
+
 def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
     ''' Finds the shortest path between the original instance and the counterfactual '''
      # for each baseline method
@@ -188,15 +194,17 @@ def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
         for i, row in tqdm(df.iterrows()):
             fact_id = row['fact id']
             f = facts[fact_id]
-            cf = row['explanation']
+            cf = ast.literal_eval(row['explanation'])
 
             solutions = []
             if env.realistic(cf):
                 for o in objs:
-                    solutions += find_recourse(f, cf, o, {'gen_alg':
+                    sol = find_recourse(f, cf, o, {'gen_alg':
                                                               {'xu': [4, 4, 9]*5,
                                                                'xl': [0, 0, 0]*5,
                                                                'horizon': 5}})
+                    if sol is not None and len(sol) and len(sol.F):
+                        solutions.append(sol)
 
             # no cfs found in the neighborhood
             if len(solutions) == 0:
@@ -206,7 +214,7 @@ def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
                                    cf,
                                    None,
                                    [1 for i in objs[0].objectives + objs[0].constraints],
-                                   row['gen_time'],
+                                   row['gen time'],
                                    0)
             else:
                  # select one at random if multiple ways to obtain the solution are present
@@ -219,8 +227,8 @@ def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
                                    list(f.state),
                                    cf,
                                    random_res.X,
-                                   random_res.F + random_res.G,
-                                   row['gen_time'], 1)
+                                   list(random_res.F.squeeze()) + list(random_res.G[0]),
+                                   row['gen time'], 1)
 
         columns = ['fact id',
                    'fact',
@@ -230,3 +238,42 @@ def transform_baseline_results(env, facts, objs, baseline_names, eval_path):
         df = pd.DataFrame(data, columns=columns)
 
         df.to_csv(baseline_path, index=False)
+
+
+def find_recourse(f, cf, obj, params):
+    # search for counterfactuals using these methods
+    outcome = ExactStateOutcome(cf)
+
+    # objectives are the same ones used by our approaches to find sf/explain
+    objs = [
+        lambda x: obj.evaluate(f, x)[0].values()
+    ]
+
+    # only constraint is to end up in the counterfactual/semifactual state
+    constr = [
+        lambda x: 1 - outcome.equal_states(x)  # 0 = satisfied constraint
+    ]
+
+    problem = FunctionalProblem(n_var=len(params['gen_alg']['xl']),
+                                objs=objs,
+                                constr_ieq=constr,
+                                xl=params['gen_alg']['xl'],
+                                xu=params['gen_alg']['xu']
+                                )
+
+    algorithm = NSGA2(pop_size=25,
+                      sampling=IntegerRandomSampling(),
+                      crossover=SBX(prob=1.0, eta=3.0, vtype=float, repair=RoundingRepair()),
+                      mutation=PM(prob=1.0, eta=3.0, vtype=float, repair=RoundingRepair()),
+                      )
+
+    res = minimize(problem,
+                   algorithm,
+                   ('n_gen', 10),
+                   seed=1,
+                   verbose=False)
+
+    if res.X is not None:
+        return res
+
+    return []
